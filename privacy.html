@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notes | Privacy</title>
+<meta name="description" content="How notes.mcbflow.com handles your data: what stays in your browser and what, if anything, leaves it.">
+<link rel="canonical" href="https://notes.mcbflow.com/privacy.html">
+<meta name="theme-color" content="#EAB308">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="any">
+<style>
+:root{--font:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;--bg:#f3f4f6;--surface:#fff;--ink:#1b1f24;--ink-2:#48505c;--muted:#5f6773;--border:#dfe2e7;--accent:#A16207;--accent-hover:#854D0E;--r:6px;--on:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#121417;--surface:#1a1d21;--ink:#e8eaed;--ink-2:#b4bac3;--muted:#99a1ac;--border:#2c3036;--accent:#FACC15;--accent-hover:#FDE047;--on:#111}}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.6 var(--font);color:var(--ink);background:linear-gradient(170deg,color-mix(in srgb,var(--accent) 8%,var(--bg)) 0,var(--bg) 320px) no-repeat,var(--bg)}
+.bar{height:6px;background:linear-gradient(90deg,#EAB308,#FFD98A)}
+header{max-width:760px;margin:0 auto;padding:20px 16px 0;display:flex;align-items:center;gap:12px}
+header a.brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:650}
+header a.brand img{width:32px;height:32px}
+header a.brand:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+main{max-width:760px;margin:16px auto 48px;padding:24px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)}
+h1{font-size:28px;line-height:1.2;margin:0 0 4px;letter-spacing:-.01em}
+h2{font-size:18px;margin:28px 0 6px}
+p,li{color:var(--ink-2)} .meta{color:var(--muted);font-size:14px;margin:0 0 16px}
+a{color:var(--accent)} a:hover{color:var(--accent-hover)}
+code{font-size:.92em;background:color-mix(in srgb,var(--accent) 8%,transparent);padding:1px 5px;border-radius:4px}
+.back{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;margin-top:24px;border-radius:var(--r);background:var(--accent);color:var(--on);text-decoration:none;font-weight:600}
+.back:hover{background:var(--accent-hover);color:var(--on)}
+footer{max-width:760px;margin:0 auto 32px;padding:0 16px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="bar"></div>
+<header><a class="brand" href="./"><img src="favicon.svg" alt="" width="32" height="32">notes.mcbflow.com</a></header>
+<main>
+<h1>Privacy</h1>
+<p class="meta">Effective 2026-10-15</p>
+
+<p>notes.mcbflow.com is a free notes app that runs in your browser. You don't need an account: everything works and saves on your device. If you choose to, you can sign in with a free mcbflow.com account to sync your notes across your devices. There are no analytics, ads or tracking scripts.</p>
+
+<h2>What stays on your device</h2>
+<p>Everything you enter is saved in your browser's storage on this device. Unless you sign in to sync, it isn't sent to us, and we can't see it. It isn't encrypted, so anyone who can use this browser profile can read it; avoid storing passwords or other secrets in notes.</p>
+<ul>
+<li><code>notes</code>: your notes, checklists, tags, colors, and the name, type and size of any files you attach</li><li><code>notes.files</code> (browser database): the files you attach</li><li><code>notes.sync</code>: sync progress, only if you sign in to sync</li><li><code>notes.draft</code>: a note you were still writing when you left the page, so it can be restored; removed once it's saved</li><li><code>notes.theme</code>: whether you chose light or dark mode</li><li><code>notes.hasVisited</code>: remembers that the sample notes were already added, so they aren't added again</li><li><code>notes.lastBackup</code>: the date you last exported a backup, shown in Settings</li>
+</ul>
+<p>Clearing your browser's site data removes it from this device. The app's own delete option (Settings → Delete all notes) removes it too, and also deletes your synced notes if you're signed in. If you install the app, your browser also keeps a copy of the app's files (not your data) so it opens offline.</p>
+
+<h2>What leaves your device</h2>
+<ul>
+<li>Nothing, unless you sign in to sync (below). Links inside your notes only open when you click them, in a new tab.</li>
+</ul>
+
+<h2>Optional sync</h2>
+<p>If you sign in with a free mcbflow.com account (Settings → Sync across devices, or the Data menu), your notes, checklists, tags, colors, pins, archive and Trash, and the name, type and size of attached files are copied to your account so your other devices match. <b>The attached files themselves are not synced</b>: they stay on the device you added them on, and other devices show them as "not on this device". Export a backup to move files. Your theme and unsaved draft stay on each device. The account database is run by Supabase (servers in the eastern United States); only your account can read your records. Signing out stops syncing and keeps the notes on this device. You can export or delete your synced data, or delete your account, on the <a href="https://mcbflow.com/account.html">mcbflow.com account page</a>. More detail is in the <a href="https://mcbflow.com/#privacy">mcbflow.com privacy policy</a>.</p>
+<p>Our web host receives the standard request information every website receives (such as IP address and browser type) to deliver the pages. The site is hosted on GitHub Pages; see the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub Privacy Statement</a>.</p>
+
+<h2>Exports and backups</h2>
+<p><b>Export backup</b> downloads a .json file of your notes, including the attached files on this device, to your device. Where it goes after that is up to you. <b>Import backup</b> and <b>Import from Google Keep</b> read files you choose (including a Google Takeout .zip) inside your browser; nothing is uploaded. Share images are drawn on your device and only go where you send them.</p>
+
+<h2>Children</h2>
+<p>The app isn't directed at children under 13 and doesn't knowingly collect their personal information.</p>
+
+<h2>Changes</h2>
+<p>If this policy changes, the new version will be posted on this page with a new effective date.</p>
+
+<a class="back" href="./">Back to Notes</a>
+</main>
+<footer>notes.mcbflow.com · <a href="./">Open the app</a> · <a href="https://mcbflow.com/">More free apps at mcbflow.com</a></footer>
+</body>
+</html>

@@ -1,0 +1,52 @@
+/* =====================================================================
+   notes.mcbflow.com · MB Suite v2 cutouts + v3 adapter. Loads last.
+   Banner NA-06 Hills (no obvious nature motif for notes) · empty states NA-16 Seed Pair · share card NA-06.
+   ===================================================================== */
+/* Marigold: the UI accent (#A16207) is a deep ochre for contrast; the art reads better from the brighter
+   brand yellow, so the art roles derive from --brand here (still no hard-coded hex). */
+:root{
+  --cut-deep:color-mix(in srgb,var(--brand) 82%,var(--accent));
+  --cut-mid:color-mix(in srgb,var(--brand) 55%,#fff);
+  --cut-soft:color-mix(in srgb,var(--brand) 26%,#fff);
+  --wash-top:color-mix(in srgb,var(--brand) 9%,#fff);
+  --wash-mid:color-mix(in srgb,var(--brand) 4%,var(--bg));
+}
+:root[data-theme="dark"]{
+  --cut-deep:var(--accent);
+  --cut-mid:color-mix(in srgb,var(--accent) 60%,var(--surface));
+  --cut-soft:color-mix(in srgb,var(--accent) 30%,var(--surface));
+  --wash-top:color-mix(in srgb,var(--accent) 10%,var(--bg));
+  --wash-mid:color-mix(in srgb,var(--accent) 4%,var(--bg));
+}
+
+/* gradient surfaces mapped to this app's selectors (v2 §3) */
+.card-note .meter i{background:var(--g-bar)}
+
+/* page bar: title names the view on desktop/tablet, so the in-page heading only shows on phones */
+/* kept for screen readers and the heading outline, hidden visually where the page bar already shows it */
+.view-head h2{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:767px){
+  .view-head h2{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;white-space:normal}
+  .page-bar .page-title{display:block;position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .cu-banner{margin-bottom:12px}
+}
+.cu-banner{max-width:none}
+.page-bar .actions{flex-wrap:nowrap}
+/* v1.2 · standard top bar (mb-suite-topbar.css loads after this): app-only bits */
+.page-bar .actions .searchbox input{height:var(--tb-h)}
+.page-bar .actions .menu-wrap{display:flex}
+@media (min-width:768px){.page-bar .actions .tb.nb-phone-only{display:none}}
+.side-tags{max-height:40vh;overflow-y:auto}
+.side-tags button{min-height:34px;font-size:13.5px}
+.side-tags .hash{width:18px;text-align:center;font-weight:650;opacity:.7}
+@media (max-width:1023px){
+  .side-label,.side-tags{display:none}
+  /* the rail has no room for tags, so tablets get the same filter chips as phones */
+  .phone-tools{display:block;margin:0 0 12px}
+  .phone-tools .searchbox{display:none}
+  .chiprow{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+  .chiprow:empty{display:none}
+  .chip-f{flex:none;display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 12px;border:1px solid var(--border-strong);border-radius:var(--r-sm);background:var(--surface);font-size:13px;font-weight:550;cursor:pointer}
+  .chip-f[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+}
+@media (max-width:767px){.phone-tools .searchbox{display:flex}.chiprow{margin-top:8px}}

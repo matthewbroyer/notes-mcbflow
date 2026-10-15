@@ -1,0 +1,65 @@
+/* =====================================================================
+   MB SUITE v1 — shared design tokens ("Microsoft/Google Alternative" Utility)
+   Same file in every app. Only the 10 accent lines in the APP ACCENT block change.
+   Load order: last <style> in <head> (after the app's own CSS) so it wins.
+   ===================================================================== */
+:root{
+  color-scheme:light;
+  /* type */
+  --font:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+  --fs-xs:11.5px; --fs-sm:12.5px; --fs:14px; --fs-md:15px; --fs-lg:17px; --fs-h2:22px; --fs-num:26px;
+  /* geometry: one radius for panels, one for controls, one for overlays */
+  --r:6px; --r-sm:4px; --r-lg:8px;
+  --ctl:38px; --ctl-sm:32px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px;
+  --ease:120ms ease;
+  /* page width: every app's header and content share one container (mbmoney.online's) */
+  --page-max:1280px; --gutter:16px;
+  /* neutrals */
+  --bg:#f3f4f6; --surface:#ffffff; --surface-2:#f6f7f9; --surface-3:#eceef2;
+  --ink:#1b1f24; --ink-2:#48505c; --muted:#5f6773;
+  --border:#dfe2e7; --border-strong:#c6cbd3;
+  --hover-band:rgba(20,24,31,.045);
+  /* semantic (keep restrained) */
+  --good:#16a34a; --good-ink:#0b7a35; --warn:#e5a100; --warn-ink:#8a5a00; --crit:#c9302c; --crit-ink:#b42824; --info:#2563eb;
+  /* depth */
+  --shadow:0 1px 2px rgba(20,24,31,.06);
+  --shadow-pop:0 8px 24px -6px rgba(20,24,31,.22),0 1px 3px rgba(20,24,31,.08);
+  --scrim:rgba(10,12,16,.45);
+}
+:root[data-theme="dark"],:root.dark{
+  color-scheme:dark;
+  --bg:#16181c; --surface:#1e2126; --surface-2:#25292f; --surface-3:#2d3238;
+  --ink:#e9ecf0; --ink-2:#b4bbc5; --muted:#8e97a3;
+  --border:#30353c; --border-strong:#434a53;
+  --hover-band:rgba(255,255,255,.05);
+  --good:#22c55e; --good-ink:#4ade80; --warn:#f0b429; --warn-ink:#f5c95c; --crit:#ff6b6b; --crit-ink:#ff8a8a; --info:#60a5fa;
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+  --shadow-pop:0 10px 28px -6px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.03);
+  --scrim:rgba(0,0,0,.6);
+}
+
+/* ---- APP ACCENT (the only per-app block) · notes.mcbflow.com: Marigold ---- */
+:root{
+  --brand:#EAB308;                 /* logo badge, OG image, theme-color */
+  --accent:#A16207; --accent-hover:#854D0E; --accent-ink:#ffffff;
+  --accent-soft:color-mix(in srgb,var(--accent) 9%,transparent);
+  --accent-line:color-mix(in srgb,var(--accent) 38%,transparent);
+}
+:root[data-theme="dark"],:root.dark{
+  --accent:#FACC15; --accent-hover:#FDE047; --accent-ink:#1F1600;
+  --accent-soft:color-mix(in srgb,var(--accent) 13%,transparent);
+  --accent-line:color-mix(in srgb,var(--accent) 45%,transparent);
+}
+
+/* ---- primitives every app shares ---- */
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--font);font-size:var(--fs);line-height:1.45;background:var(--bg);color:var(--ink);font-feature-settings:normal;-webkit-font-smoothing:antialiased}
+::selection{background:color-mix(in srgb,var(--accent) 28%,transparent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input[type=checkbox],input[type=radio],input[type=range],progress{accent-color:var(--accent)}
+.tabular,.num,time{font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important;scroll-behavior:auto!important}}
+@media(pointer:coarse),(max-width:700px){:root{--ctl:44px;--ctl-sm:44px}}
+.tld{font-style:normal;color:var(--accent)}

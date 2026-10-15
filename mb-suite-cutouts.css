@@ -1,0 +1,108 @@
+/* =====================================================================
+   MB SUITE v2 · PAPER CUTOUTS surface layer
+   Additive and accent-driven. Load LAST in <head>: after mb-suite-core.css,
+   mb-suite-appbar.css and the app's adapter. Never edit core to get this look.
+   Changes SURFACE only: gradients, page wash, cutout art. Geometry (6/4/8px),
+   layout, density, type, components, motion and behavior stay MB Suite v1.
+   Per-app tweaks go in adapters/<app>-cutouts.css, not here.
+   ===================================================================== */
+
+/* ---- art + gradient tokens (all derived from --accent; no per-app hex) ---- */
+:root{
+  --cut-deep:var(--accent);
+  --cut-mid:color-mix(in srgb,var(--accent) 52%,#fff);
+  --cut-soft:color-mix(in srgb,var(--accent) 24%,#fff);
+  --cut-near:color-mix(in srgb,var(--accent) 62%,#0aa6b8);      /* neighbor hue; upgraded below where supported */
+  --cut-butter:#FFD98A;
+  --cut-blush:#F7B8A8;
+  --wash-top:color-mix(in srgb,var(--accent) 7%,#fff);
+  --wash-mid:color-mix(in srgb,var(--accent) 4%,var(--bg));
+  --g-line:linear-gradient(90deg,var(--accent),var(--cut-mid) 55%,var(--cut-butter));
+  --g-underline:linear-gradient(90deg,var(--accent),var(--cut-mid));
+  --g-pri:linear-gradient(135deg,var(--accent),var(--accent-hover));
+  --g-bar:linear-gradient(90deg,var(--accent),var(--cut-mid));
+  --g-tile:linear-gradient(135deg,color-mix(in srgb,var(--accent) 11%,var(--surface)),var(--surface) 65%);
+}
+@supports (color:oklch(from red l c h)){
+  :root{--cut-near:oklch(from var(--accent) calc(l + .04) c calc(h + 34))}
+}
+:root[data-theme="dark"],:root.dark{
+  --cut-mid:color-mix(in srgb,var(--accent) 60%,var(--surface));
+  --cut-soft:color-mix(in srgb,var(--accent) 30%,var(--surface));
+  --cut-near:color-mix(in srgb,var(--accent) 62%,#0aa6b8);
+  --cut-butter:#D9B363;
+  --cut-blush:#C98C80;
+  --wash-top:color-mix(in srgb,var(--accent) 16%,var(--bg));
+  --wash-mid:color-mix(in srgb,var(--accent) 7%,var(--bg));
+}
+@supports (color:oklch(from red l c h)){
+  :root[data-theme="dark"],:root.dark{--cut-near:oklch(from var(--accent) calc(l - .06) c calc(h + 34))}
+}
+
+/* ---- page wash: accent-derived, fades into the neutral page by ~680px ---- */
+html{min-height:100%;background:linear-gradient(180deg,var(--wash-top) 0,var(--wash-mid) 420px,var(--bg) 680px) 0 0/100% 680px no-repeat,var(--bg)}  /* v3 fix: fixed 680px size + min-height so short pages don't show a seam */
+body{background:none}
+
+/* ---- app bar: gradient accent line + gradient underline on the current tab ---- */
+.top,.app-bar{box-shadow:var(--shadow)!important}
+.top::before,.app-bar::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--g-line);pointer-events:none;z-index:1}
+.tabs button[aria-current="page"],nav.tabs button[aria-current="page"],
+:root[data-theme="dark"] nav.tabs button[aria-current="page"]{box-shadow:none!important;background:var(--g-underline) bottom/100% 2px no-repeat!important}
+.bnav button[aria-current="page"]{box-shadow:none!important;background:var(--g-underline) top/100% 2px no-repeat!important}
+
+/* ---- gradient is allowed ONLY here (everything else stays flat v1) ----
+   primary buttons, progress/bar fills, the hero stat tile, the banner, the page wash, the accent line.
+   Map the app's own selectors in adapters/<app>-cutouts.css; these are the common ones. */
+:is(.btn.primary,.btn.pri,.btn-primary,button.primary,.primary-btn){background:var(--g-pri)!important;border-color:transparent!important;color:var(--accent-ink)!important}
+.cu-hero{background:var(--g-tile)}
+.cu-bar{background:var(--g-bar)!important}                 /* use on the fill element of a progress/bar */
+
+/* ---- banner ---- */
+.cu-banner{position:relative;overflow:hidden;min-height:128px;margin:0 0 var(--sp-4);padding:22px 24px;border-radius:var(--r-lg);
+  border:1px solid color-mix(in srgb,var(--accent) 16%,transparent);box-shadow:var(--shadow);
+  background:linear-gradient(105deg,color-mix(in srgb,var(--accent) 3%,var(--surface)) 0%,color-mix(in srgb,var(--accent) 9%,var(--surface)) 60%,
+    color-mix(in srgb,var(--cut-butter) 22%,color-mix(in srgb,var(--accent) 5%,var(--surface))) 100%)}
+.cu-banner.slim{min-height:72px;padding:16px 24px}
+.cu-banner .cu-txt{position:relative;z-index:1}
+.cu-banner.slim .cu-art:not(.at-bottom):not(.at-top){max-width:58%}
+.cu-banner .cu-t{margin:0;font-size:var(--fs-h2);font-weight:650;letter-spacing:-.015em;color:var(--ink)}
+.cu-banner .cu-s{margin:4px 0 0;font-size:13.5px;color:var(--ink-2)}
+
+/* ---- art: roles (never hardcode hexes; recolor by role class or palette class) ---- */
+.cu-art{position:absolute;right:0;top:0;height:100%;width:auto;max-width:75%;pointer-events:none}
+.cu-art .d{fill:var(--cu-d,var(--cut-deep))}
+.cu-art .m{fill:var(--cu-m,var(--cut-mid))}
+.cu-art .s{fill:var(--cu-s,var(--cut-soft))}
+.cu-art .n{fill:var(--cu-n,var(--cut-near))}
+.cu-art .b{fill:var(--cu-b,var(--cut-butter))}
+.cu-art .r{fill:var(--cu-r,var(--cut-blush))}
+.cu-art .sd{fill:none;stroke:var(--cu-d,var(--cut-deep));stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.cu-art .sm{fill:none;stroke:var(--cu-m,var(--cut-mid));stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---- palettes: put on the svg or any ancestor ---- */
+.cu-p-mono{--cu-n:color-mix(in srgb,var(--accent) 78%,#000);--cu-b:color-mix(in srgb,var(--accent) 14%,var(--surface));--cu-r:color-mix(in srgb,var(--accent) 38%,var(--surface))}
+.cu-p-soft{--cu-d:var(--cut-mid);--cu-m:var(--cut-soft);--cu-s:color-mix(in srgb,var(--accent) 12%,var(--surface));
+  --cu-n:color-mix(in srgb,var(--cut-near) 45%,var(--surface));--cu-b:color-mix(in srgb,var(--cut-butter) 70%,var(--surface));--cu-r:color-mix(in srgb,var(--cut-blush) 70%,var(--surface))}
+.cu-p-bold{--cu-d:var(--accent-hover);--cu-m:var(--accent);--cu-s:var(--cut-mid)}
+
+/* ---- placement / size / modifiers (all optional; size with --cu-w or height) ---- */
+.cu-art.at-right{right:0;left:auto;top:0}
+.cu-art.at-left{left:0;right:auto;top:0}
+.cu-art.at-top{left:0;right:0;top:0;width:100%;height:auto;max-width:none}
+.cu-art.at-bottom{left:0;right:0;top:auto;bottom:0;width:100%;height:auto;max-width:none}
+.cu-art.at-corner{top:0;right:0;height:auto;width:var(--cu-w,220px);max-width:none}
+.cu-art.at-corner-bl{top:auto;right:auto;bottom:0;left:0;height:auto;width:var(--cu-w,220px);max-width:none}
+.cu-art.inline{position:relative;display:block;right:auto;top:auto;margin:0 auto;width:var(--cu-w,100%);max-width:100%;height:auto}
+.cu-art.mirror{transform:scaleX(-1)}
+.cu-art.flip{transform:scaleY(-1)}
+.cu-art.fade{opacity:.35}
+.cu-art.xs{--cu-w:64px}.cu-art.sm{--cu-w:120px}.cu-art.md{--cu-w:220px}.cu-art.lg{--cu-w:340px}
+:root[data-theme="dark"] .cu-art,:root.dark .cu-art{opacity:.85}
+:root[data-theme="dark"] .cu-art.fade,:root.dark .cu-art.fade{opacity:.3}
+
+/* ---- phones + print ---- */
+@media(max-width:600px){
+  .cu-banner{padding:18px 16px;min-height:104px}
+  .cu-banner .cu-art:not(.at-bottom):not(.at-top){max-width:46%}
+}
+@media print{html{background:#fff}.cu-banner,.cu-art{display:none}}

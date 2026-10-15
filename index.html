@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-app-short="Notes" data-app-domain="notes.mcbflow.com">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://rxvcjdwmvxhwbdwncfhj.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<title>Notes | All notes</title>
+<meta name="description" content="Free notes app that runs in your browser. Write notes and checklists, pin, tag and link them, and import from Google Keep. No account; your notes stay on your device.">
+<link rel="canonical" href="https://notes.mcbflow.com/">
+<meta name="theme-color" content="#EAB308">
+<meta name="color-scheme" content="light dark">
+<meta name="application-name" content="Notes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Notes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="notes.mcbflow.com">
+<meta property="og:title" content="notes.mcbflow.com · Free notes and checklists in your browser">
+<meta property="og:description" content="Write notes and checklists, pin, tag and link them, and import from Google Keep. No account; your notes stay on your device.">
+<meta property="og:url" content="https://notes.mcbflow.com/">
+<meta property="og:image" content="https://notes.mcbflow.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="notes.mcbflow.com: notes and checklists that stay on your device, shown in the app">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="notes.mcbflow.com · Free notes and checklists in your browser">
+<meta name="twitter:description" content="Write notes and checklists, pin, tag and link them, and import from Google Keep. No account; your notes stay on your device.">
+<meta name="twitter:image" content="https://notes.mcbflow.com/og-image.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"notes.mcbflow.com","alternateName":"Notes","url":"https://notes.mcbflow.com/","applicationCategory":"ProductivityApplication","operatingSystem":"Any (runs in a web browser)","description":"Free notes app that runs in your browser. Write notes and checklists, pin, tag and link them, and import from Google Keep. No account; notes stay on your device.","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Matthew Broyer","url":"https://matthewbroyer.com/"}}</script>
+<script src="theme-boot.js"></script>
+<link rel="stylesheet" href="mb-suite-core.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="mb-suite-cutouts.css">
+<link rel="stylesheet" href="mb-suite-sidebar.css">
+<link rel="stylesheet" href="mb-suite-v3.css">
+<link rel="stylesheet" href="app-v3.css">
+<link rel="stylesheet" href="mb-suite-topbar.css">
+</head>
+<body class="mb-shell">
+<a class="skip" href="#main">Skip to notes</a>
+<noscript><p style="margin:0;padding:12px 16px;background:#fdf3cd;color:#1b1f24">notes.mcbflow.com is a free notes app that runs in your browser: notes and checklists with tags, links between notes and Google Keep import, saved on your device. It needs JavaScript turned on.</p></noscript>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-notes" viewBox="0 0 24 24"><path d="M6 3.5h9l4 4v13H6z"/><path d="M15 3.5v4h4M9 12h7M9 16h5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M9 3.5h6M10 3.5v6l-3 4h10l-3-4v-6M12 13.5V21"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v10.5h14V9M10 13h4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 3.5h4M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3a1.4 1.4 0 0 1 0 2l-6.2 6.2a1.4 1.4 0 0 1-2 0z"/><circle cx="8.5" cy="8.5" r="1.4"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-export" viewBox="0 0 24 24"><path d="M4 14v5.5h16V14M12 15V4M7.5 8.5 12 4l4.5 4.5"/></symbol>
+  <symbol id="i-import" viewBox="0 0 24 24"><path d="M4 14v5.5h16V14M12 4v11M7.5 10.5 12 15l4.5-4.5"/></symbol>
+  <symbol id="i-data" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7.5" ry="2.8"/><path d="M4.5 6v12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8V6M4.5 12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8"/></symbol>
+  <symbol id="i-bold" viewBox="0 0 24 24"><path d="M7 4.5h6a3.5 3.5 0 0 1 0 7H7zM7 11.5h7a3.75 3.75 0 0 1 0 7.5H7z"/></symbol>
+  <symbol id="i-italic" viewBox="0 0 24 24"><path d="M10 4.5h8M6 19.5h8M14.5 4.5l-5 15"/></symbol>
+  <symbol id="i-underline" viewBox="0 0 24 24"><path d="M7 4v7a5 5 0 0 0 10 0V4M5 20h14"/></symbol>
+  <symbol id="i-strike" viewBox="0 0 24 24"><path d="M4 12h16M16.5 6.5C15.6 5 14 4.3 12 4.3c-2.8 0-4.5 1.4-4.5 3.4 0 1.6 1 2.6 3 3.3M7.5 17.5c1 1.4 2.6 2.2 4.6 2.2 2.8 0 4.6-1.4 4.6-3.6 0-.8-.2-1.5-.7-2.1"/></symbol>
+  <symbol id="i-ul" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></symbol>
+  <symbol id="i-ol" viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10M4 4.5h1.5V9M4 9h3M4 14.5c.4-.6 1-.9 1.6-.9.9 0 1.4.6 1.4 1.2 0 1.2-3 2.2-3 3.7h3"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><path d="m20 11.5-8.2 8.2a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.6-4.1M8.2 13.2l7.6 4.1"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-restore" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5"/><path d="M4 4v4.5h4.5"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7.5 18.5h9.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.3a4.6 4.6 0 0 0 1.3 9.2z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17.3v.2"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5c3 3.6 6 7 6 10.5a6 6 0 0 1-12 0c0-3.5 3-6.9 6-10.5z"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+</svg>
+
+<aside class="mb-side" aria-label="App">
+  <a class="brand" href="./" data-action="home" aria-label="notes.mcbflow.com: go to All notes"><span class="logo"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="gn1" gradientUnits="userSpaceOnUse" x1="10" y1="0" x2="54" y2="64"><stop offset="0" stop-color="#edbe2b"/><stop offset=".55" stop-color="#EAB308"/><stop offset="1" stop-color="#bb8f06"/></linearGradient><clipPath id="cn1"><rect width="64" height="64" rx="18"/></clipPath></defs><g clip-path="url(#cn1)"><rect width="64" height="64" fill="url(#gn1)"/><path d="M24 26.5h16M24 33.5h16M24 40.5h9" stroke="#fff" stroke-opacity=".55" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M17.5 14.5h21.5l7.5 7.5v27.5h-29z" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M39 14.5v7.5h7.5" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg></span><span class="bt"><b>notes<i class="tld">.mcbflow.com</i></b><span>Official Web App · v1.3</span></span></a>
+  <nav class="side-nav" id="sideNav" aria-label="Sections">
+    <button type="button" data-view="all" aria-current="page"><svg class="uic"><use href="#i-notes"/></svg><span>All notes</span><b class="count" data-count="all"></b></button>
+    <button type="button" data-view="pinned"><svg class="uic"><use href="#i-pin"/></svg><span>Pinned</span><b class="count" data-count="pinned"></b></button>
+    <button type="button" data-view="checklist"><svg class="uic"><use href="#i-check"/></svg><span>Checklists</span><b class="count" data-count="checklist"></b></button>
+    <button type="button" data-view="archive"><svg class="uic"><use href="#i-archive"/></svg><span>Archive</span><b class="count" data-count="archive"></b></button>
+    <button type="button" data-view="trash"><svg class="uic"><use href="#i-trash"/></svg><span>Trash</span><b class="count" data-count="trash"></b></button>
+  </nav>
+  <p class="side-label" id="tagLabel" hidden>Tags</p>
+  <nav class="side-nav side-tags" id="tagNav" aria-labelledby="tagLabel"></nav>
+  <nav class="side-nav side-end" aria-label="More">
+    <button type="button" data-view="settings"><svg class="uic"><use href="#i-settings"/></svg><span>Settings</span></button>
+  </nav>
+</aside>
+
+<div class="mb-main">
+  <header class="page-bar">
+    <a class="brand phone-brand" href="./" data-action="home" aria-label="notes.mcbflow.com: go to All notes"><span class="logo"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="gn2" gradientUnits="userSpaceOnUse" x1="10" y1="0" x2="54" y2="64"><stop offset="0" stop-color="#edbe2b"/><stop offset=".55" stop-color="#EAB308"/><stop offset="1" stop-color="#bb8f06"/></linearGradient><clipPath id="cn2"><rect width="64" height="64" rx="18"/></clipPath></defs><g clip-path="url(#cn2)"><rect width="64" height="64" fill="url(#gn2)"/><path d="M24 26.5h16M24 33.5h16M24 40.5h9" stroke="#fff" stroke-opacity=".55" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M17.5 14.5h21.5l7.5 7.5v27.5h-29z" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M39 14.5v7.5h7.5" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg></span><span class="bt"><b>notes<i class="tld">.mcbflow.com</i></b><span>Official Web App · v1.3</span></span></a>
+    <h1 class="page-title" id="pageTitle">All notes</h1>
+    <div class="actions">
+      <button type="button" class="tb tb-search tb-opt nb-phone-only" id="searchTb" data-notes-only aria-label="Search notes" title="Search notes"><svg class="uic" aria-hidden="true"><use href="#i-search"/></svg></button>
+      <div class="searchbox tb tb-search hide-phone" data-notes-only>
+        <svg class="uic" aria-hidden="true"><use href="#i-search"/></svg>
+        <input id="search" type="search" placeholder="Search…" aria-label="Search notes (press /)" aria-keyshortcuts="/" autocomplete="off"><kbd>/</kbd>
+      </div>
+      <div class="menu-wrap">
+        <button type="button" class="tb" id="dataBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="dataMenu" aria-label="Data: backup and import" title="Backup and import"><svg class="uic" aria-hidden="true"><use href="#i-data"/></svg><span class="tb-lbl">Data</span><svg class="uic tb-chev" aria-hidden="true"><use href="#i-down"/></svg></button>
+        <div class="menu" id="dataMenu" role="menu" hidden>
+          <button type="button" role="menuitem" data-action="export"><svg class="uic" aria-hidden="true"><use href="#i-export"/></svg>Export backup (.json)</button>
+          <button type="button" role="menuitem" data-action="import"><svg class="uic" aria-hidden="true"><use href="#i-import"/></svg>Import backup…</button>
+          <button type="button" role="menuitem" data-action="keep"><svg class="uic" aria-hidden="true"><use href="#i-import"/></svg>Import from Google Keep…</button>
+          <button type="button" role="menuitem" data-action="sync" id="syncMenu" hidden><svg class="uic" aria-hidden="true"><use href="#i-cloud"/></svg><span id="syncMenuText">Sync across devices…</span></button>
+        </div>
+      </div>
+      <button type="button" class="themesw" id="themeBtn" role="switch" aria-checked="false" aria-label="Dark mode" title="Dark mode"><span class="tk"><svg class="i-sun" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="3.2"/><path d="M10 2.5v1.8M10 15.7v1.8M2.5 10h1.8M15.7 10h1.8M4.7 4.7l1.3 1.3M14 14l1.3 1.3M4.7 15.3 6 14M14 6l1.3-1.3"/></svg><svg class="i-moon" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true" fill="currentColor"><path d="M16.5 12.2A6.6 6.6 0 0 1 7.8 3.5a6.6 6.6 0 1 0 8.7 8.7Z"/></svg><i class="th"></i></span></button>
+      <button type="button" class="tb tb-primary" data-action="new" aria-label="New note" title="New note"><svg class="uic" aria-hidden="true"><use href="#i-plus"/></svg><span class="tb-lbl">New note</span></button>
+    </div>
+  </header>
+
+  <main class="wrap" id="main" tabindex="-1">
+    <!-- NOTES VIEWS (all / pinned / checklist / archive / trash / tag) -->
+    <section id="notesView" aria-labelledby="viewHeading">
+      <section class="cu-banner" id="homeBanner">
+        <svg class="cu-art" viewBox="0 0 640 136" preserveAspectRatio="xMaxYMax slice" aria-hidden="true" focusable="false"><circle class="b" cx="560" cy="46" r="26"/><path class="s" d="M210 150 C315 80 525 80 630 150Z"/><path class="m" d="M410 150 C485 66 635 66 710 150Z"/><path class="d" d="M530 150 C585 90 695 90 750 150Z"/><path class="n" transform="translate(470 98) rotate(-64) scale(0.5)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><path class="d" transform="translate(480 98) rotate(-116) scale(0.4)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><circle class="r" cx="360" cy="44" r="6"/></svg>
+        <div class="cu-txt"><h2 class="cu-t" id="bannerTitle">All notes</h2><p class="cu-s" id="bannerSub">Your notes stay in this browser</p></div>
+      </section>
+      <div class="view-head" id="viewHead" hidden>
+        <h2 id="viewHeading">All notes</h2>
+        <p class="view-sub" id="viewSub"></p>
+        <div class="view-actions" id="viewActions"></div>
+      </div>
+
+      <div class="phone-tools">
+        <div class="searchbox">
+          <svg class="uic" aria-hidden="true"><use href="#i-search"/></svg>
+          <input id="searchPhone" type="search" placeholder="Search notes" aria-label="Search notes" autocomplete="off">
+        </div>
+        <div class="chiprow" id="phoneChips" aria-label="Filters"></div>
+      </div>
+
+      <!-- capture -->
+      <div id="capture" class="capture note-c bg-white" data-open="false">
+        <div class="cap-body">
+          <label class="sr" for="c-title">Title</label>
+          <input id="c-title" class="cap-title" placeholder="Title" autocomplete="off" hidden>
+          <div class="fmt" id="c-format-bar" role="toolbar" aria-label="Formatting" hidden>
+            <button type="button" class="ib" data-cmd="bold" aria-label="Bold" title="Bold (Ctrl+B)"><svg class="uic"><use href="#i-bold"/></svg></button>
+            <button type="button" class="ib" data-cmd="italic" aria-label="Italic" title="Italic (Ctrl+I)"><svg class="uic"><use href="#i-italic"/></svg></button>
+            <button type="button" class="ib" data-cmd="underline" aria-label="Underline" title="Underline (Ctrl+U)"><svg class="uic"><use href="#i-underline"/></svg></button>
+            <button type="button" class="ib" data-cmd="strikeThrough" aria-label="Strikethrough" title="Strikethrough"><svg class="uic"><use href="#i-strike"/></svg></button>
+            <span class="sep" aria-hidden="true"></span>
+            <button type="button" class="ib" data-list="bullet" aria-label="Bullet list" title="Bullet list"><svg class="uic"><use href="#i-ul"/></svg></button>
+            <button type="button" class="ib" data-list="number" aria-label="Numbered list" title="Numbered list"><svg class="uic"><use href="#i-ol"/></svg></button>
+            <span class="sep" aria-hidden="true"></span>
+            <button type="button" class="ib" data-cmd="undo" aria-label="Undo" title="Undo (Ctrl+Z)"><svg class="uic"><use href="#i-undo"/></svg></button>
+            <button type="button" class="ib" data-cmd="redo" aria-label="Redo" title="Redo (Ctrl+Y)"><svg class="uic"><use href="#i-redo"/></svg></button>
+          </div>
+          <div id="c-content" class="editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a note"
+               data-placeholder="Write a note…  #tags  [[links to other notes]]  https://links"></div>
+          <div id="c-attachments" class="atts" hidden></div>
+          <div id="c-checklist" class="cl-edit" hidden></div>
+        </div>
+        <div class="cap-bar" id="c-controls" hidden>
+          <div class="tools">
+            <div class="swatches" role="group" aria-label="Note color" data-swatches="capture"></div>
+            <button type="button" class="ib" id="toggle-checklist" aria-pressed="false" aria-label="Checklist" title="Checklist"><svg class="uic"><use href="#i-check"/></svg></button>
+            <label class="ib" title="Attach a file (4 MB max)"><svg class="uic" aria-hidden="true"><use href="#i-clip"/></svg><span class="sr">Attach a file</span>
+              <input type="file" class="sr" multiple accept="image/*,.pdf,.txt,.md,.doc,.docx,.zip" data-files="capture">
+            </label>
+          </div>
+          <span class="hint hide-phone">Saves when you close · Esc</span>
+          <button type="button" class="btn sm" data-action="close-capture">Close</button>
+        </div>
+      </div>
+
+      <div id="notes" aria-live="polite"></div>
+      <div id="empty" class="empty" hidden></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="settingsView" hidden aria-labelledby="settingsHeading">
+      <div class="view-head"><h2 id="settingsHeading" class="phone-only">Settings</h2></div>
+      <div class="settings">
+        <section class="card" aria-labelledby="s-sync" id="syncCard" hidden>
+          <h2 id="s-sync">Sync across devices</h2>
+          <p class="muted" id="syncText"></p>
+          <div class="row-actions">
+            <button type="button" class="btn primary" data-action="sync" id="syncBtn"><svg class="uic" aria-hidden="true"><use href="#i-cloud"/></svg><span id="syncBtnText">Sign in to sync</span></button>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="s-data">
+          <h2 id="s-data">Backup and import</h2>
+          <p class="muted">Your notes live in this browser (and in your account, if you sync). Attachments are only in backups. Export a backup now and then, especially before clearing browser data or switching devices.</p>
+          <div class="row-actions">
+            <button type="button" class="btn primary" data-action="export"><svg class="uic" aria-hidden="true"><use href="#i-export"/></svg>Export backup</button>
+            <button type="button" class="btn" data-action="import"><svg class="uic" aria-hidden="true"><use href="#i-import"/></svg>Import backup…</button>
+          </div>
+          <p class="fine" id="lastBackup"></p>
+        </section>
+
+        <section class="card" aria-labelledby="s-keep" id="keepCard">
+          <h2 id="s-keep">Import from Google Keep</h2>
+          <ol class="steps">
+            <li>Go to <b>takeout.google.com</b>, click <b>Deselect all</b>, tick <b>Keep</b> only, and create the export.</li>
+            <li>Download the .zip Google emails you.</li>
+            <li>Choose that .zip here (or the .json files from its <b>Takeout/Keep</b> folder).</li>
+          </ol>
+          <label class="check"><input type="checkbox" id="keepImages" checked> Bring in images (up to 4 MB each; they use browser storage)</label>
+          <div class="row-actions">
+            <button type="button" class="btn primary" data-action="keep"><svg class="uic" aria-hidden="true"><use href="#i-import"/></svg>Choose Takeout file…</button>
+          </div>
+          <p class="fine">Keeps titles, text, checklists, colors, pins, archive and trash, labels (as #tags), links and dates. Notes you've already imported are skipped. Everything is read on your device; nothing is uploaded.</p>
+          <div id="keepResult" class="result" role="status" hidden></div>
+        </section>
+
+        <section class="card" aria-labelledby="s-help">
+          <h2 id="s-help">Tips</h2>
+          <dl class="tips">
+            <dt>Tags</dt><dd>Type <code>#idea</code> anywhere in a note. Tags appear in the sidebar so you can filter by them.</dd>
+            <dt>Links between notes</dt><dd>Type <code>[[Note title]]</code> to link to another note. The linked note lists it under "Linked from".</dd>
+            <dt>Web links</dt><dd>Paste any <code>https://</code> address and it becomes clickable.</dd>
+            <dt>Keyboard</dt><dd><kbd>Esc</kbd> or <kbd>Ctrl</kbd>+<kbd>Enter</kbd> saves and closes. <kbd>Ctrl</kbd>+<kbd>B</kbd> / <kbd>I</kbd> / <kbd>U</kbd> format text. Start a line with <code>• </code> or <code>1. </code> and Enter continues the list.</dd>
+            <dt>Can I install it like an app?</dt><dd>In Chrome or Edge, use Install at the bottom of Settings (or the install icon in the address bar). On iPhone, tap Share, then Add to Home Screen.</dd>
+          </dl>
+        </section>
+
+        <section class="card danger-zone" aria-labelledby="s-delete">
+          <h2 id="s-delete">Delete data</h2>
+          <div class="setting-row">
+            <div><b>Delete all notes</b><p class="muted">Removes every note from this browser, including Archive and Trash. Export a backup first if you might want them back.</p></div>
+            <button type="button" class="btn danger" data-action="delete-all">Delete all…</button>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="s-app">
+          <h2 id="s-app">App</h2>
+          <div class="setting-row">
+            <div><b>Dark mode</b><p class="muted">Follows your device until you change it here.</p></div>
+            <button type="button" class="themesw" id="themeBtn2" role="switch" aria-checked="false" aria-label="Dark mode"><i></i></button>
+          </div>
+          <div class="setting-row">
+            <div><b>Your notes</b><p class="muted" id="statsLine"></p></div>
+            <button type="button" class="btn mb-share-btn" data-action="share-stats"><svg class="uic" aria-hidden="true"><use href="#i-share"/></svg>Share</button>
+          </div>
+          <div class="setting-row">
+            <div><b>Storage used</b><p class="muted" id="storageLine"></p></div>
+          </div>
+          <div data-mb-install data-app-name="Notes" data-note="Opens in its own window with its own icon. Works offline after the first visit." hidden></div>
+          <div class="mb-about" role="group" aria-label="About this app">
+            <svg class="uic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.01"/></svg>
+            <div>
+              <b>notes.mcbflow.com™</b>
+              <p>Version 1.4 · Oct 15, 2026</p>
+              <p class="mb-about-links"><a href="privacy.html">Privacy</a><a href="https://mcbflow.com/">More free apps at mcbflow.com</a></p>
+              <p class="mb-about-copy">© 2026 Matthew Broyer. All rights reserved.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="bnav" id="bnav" aria-label="Sections">
+  <button type="button" data-view="all" aria-current="page"><svg class="uic"><use href="#i-notes"/></svg><span>Notes</span></button>
+  <button type="button" data-view="checklist"><svg class="uic"><use href="#i-check"/></svg><span>Checklists</span></button>
+  <button type="button" data-view="archive"><svg class="uic"><use href="#i-archive"/></svg><span>Archive</span></button>
+  <button type="button" data-view="trash"><svg class="uic"><use href="#i-trash"/></svg><span>Trash</span></button>
+  <button type="button" data-view="settings"><svg class="uic"><use href="#i-settings"/></svg><span>Settings</span></button>
+</nav>
+
+<!-- note editor -->
+<dialog id="modal" class="editor-dlg note-c bg-white" aria-labelledby="e-title-label">
+  <div class="dlg-body">
+    <label class="sr" id="e-title-label" for="e-title">Note title</label>
+    <input id="e-title" class="e-title" placeholder="Title" autocomplete="off">
+    <div class="fmt" role="toolbar" aria-label="Formatting">
+      <button type="button" class="ib" data-cmd="bold" aria-label="Bold" title="Bold (Ctrl+B)"><svg class="uic"><use href="#i-bold"/></svg></button>
+      <button type="button" class="ib" data-cmd="italic" aria-label="Italic" title="Italic (Ctrl+I)"><svg class="uic"><use href="#i-italic"/></svg></button>
+      <button type="button" class="ib" data-cmd="underline" aria-label="Underline" title="Underline (Ctrl+U)"><svg class="uic"><use href="#i-underline"/></svg></button>
+      <button type="button" class="ib" data-cmd="strikeThrough" aria-label="Strikethrough" title="Strikethrough"><svg class="uic"><use href="#i-strike"/></svg></button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" class="ib" data-list="bullet" aria-label="Bullet list" title="Bullet list"><svg class="uic"><use href="#i-ul"/></svg></button>
+      <button type="button" class="ib" data-list="number" aria-label="Numbered list" title="Numbered list"><svg class="uic"><use href="#i-ol"/></svg></button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" class="ib" data-cmd="undo" aria-label="Undo" title="Undo (Ctrl+Z)"><svg class="uic"><use href="#i-undo"/></svg></button>
+      <button type="button" class="ib" data-cmd="redo" aria-label="Redo" title="Redo (Ctrl+Y)"><svg class="uic"><use href="#i-redo"/></svg></button>
+    </div>
+    <div id="e-content" class="editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Note text" data-placeholder="Write something…"></div>
+    <div id="e-attachments" class="atts"></div>
+    <div id="e-checklist" class="cl-edit" hidden></div>
+    <div id="e-done" class="done-row" hidden>
+      <span><svg class="uic" aria-hidden="true"><use href="#i-check"/></svg>All items done</span>
+      <button type="button" class="btn sm mb-share-btn" data-action="share-checklist"><svg class="uic" aria-hidden="true"><use href="#i-share"/></svg>Share</button>
+    </div>
+    <div id="backlinks" class="backlinks" hidden>
+      <p class="label">Linked from</p>
+      <div id="backlinks-list"></div>
+    </div>
+    <p class="e-meta" id="e-meta"></p>
+  </div>
+  <div class="dlg-bar">
+    <div class="tools">
+      <div class="swatches" role="group" aria-label="Note color" data-swatches="edit"></div>
+      <button type="button" class="ib" id="e-toggle-checklist" aria-label="Checklist" title="Checklist" aria-pressed="false"><svg class="uic"><use href="#i-check"/></svg></button>
+      <label class="ib" title="Attach a file (4 MB max)"><svg class="uic" aria-hidden="true"><use href="#i-clip"/></svg><span class="sr">Attach a file</span>
+        <input type="file" class="sr" multiple accept="image/*,.pdf,.txt,.md,.doc,.docx,.zip" data-files="edit">
+      </label>
+      <button type="button" class="ib" id="e-pin" aria-pressed="false" aria-label="Pin" title="Pin"><svg class="uic"><use href="#i-pin"/></svg></button>
+      <button type="button" class="ib" id="e-archive" aria-label="Archive" title="Archive"><svg class="uic"><use href="#i-archive"/></svg></button>
+      <button type="button" class="ib" id="share-btn" aria-label="Share note text" title="Share note text"><svg class="uic"><use href="#i-link"/></svg></button>
+      <button type="button" class="ib danger" id="e-trash" aria-label="Move to Trash" title="Move to Trash"><svg class="uic"><use href="#i-trash"/></svg></button>
+    </div>
+    <button type="button" class="btn primary sm" data-action="close-modal">Done</button>
+  </div>
+</dialog>
+
+<!-- confirm / choice dialog -->
+<dialog id="ask" class="ask-dlg" aria-labelledby="askTitle" aria-describedby="askText">
+  <form method="dialog">
+    <h3 id="askTitle"></h3>
+    <p id="askText"></p>
+    <div class="ask-btns" id="askBtns"></div>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<input type="file" id="importFile" class="sr" accept=".json,application/json" tabindex="-1" aria-hidden="true">
+<input type="file" id="keepFile" class="sr" accept=".zip,.json,application/zip,application/json" multiple tabindex="-1" aria-hidden="true">
+
+<template id="shareArt"><svg class="cu-art" viewBox="0 0 640 136" preserveAspectRatio="xMaxYMax slice" aria-hidden="true" focusable="false"><circle class="b" cx="560" cy="46" r="26"/><path class="s" d="M210 150 C315 80 525 80 630 150Z"/><path class="m" d="M410 150 C485 66 635 66 710 150Z"/><path class="d" d="M530 150 C585 90 695 90 750 150Z"/><path class="n" transform="translate(470 98) rotate(-64) scale(0.5)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><path class="d" transform="translate(480 98) rotate(-116) scale(0.4)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><circle class="r" cx="360" cy="44" r="6"/></svg></template>
+<template id="emptyArt"><svg class="cu-art inline" viewBox="0 0 160 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path class="s" transform="translate(80 98)" d="M-48 2.2 C-48 -15.8 26.4 -16.5 48 -1.5 C49 14.2 -26.4 16.5 -48 2.2Z"/><path class="sd" d="M80 92 C75.6 71.8 83.3 54 80 41.4"/><path class="d" transform="translate(80 41.4) rotate(-38) scale(0.5)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><path class="m" transform="translate(80 52.5) rotate(-150) scale(0.4)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><circle class="b" cx="122" cy="40" r="7"/><path class="m" transform="translate(40 104)" d="M-13 0.9 C-13 -6.3 7.2 -6.6 13 -0.6 C13.3 5.7 -7.2 6.6 -13 0.9Z"/></svg></template>
+
+<script src="mb-title.js"></script>
+<script src="mb-install.js"></script>
+<script src="mb-share.js"></script>
+<script src="keep-import.js"></script>
+<script src="mb-sync.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
