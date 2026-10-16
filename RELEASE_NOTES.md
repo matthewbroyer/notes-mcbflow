@@ -2,6 +2,21 @@
 
 Newest first. One entry per release, in plain words a user would understand.
 
+## 1.5 · 2026-10-16
+- New Settings page, laid out the same way in every mcbflow.com app: Appearance, Account & sync, Your notes, Tips, Backup & data, Install, About.
+- Account button in the top bar: "Sign in", or your initial with a dot that shows whether sync is up to date. New "Keep me signed in on this device" switch (turn it off on a shared computer).
+- First visit: the same short welcome screen as the other apps (what Notes does, pick light or dark, write a first note, or sign in / import a backup / import from Google Keep). The three sample notes are still added; the Welcome note is shorter now.
+- Clearer Data menu with a line about each choice: Save backup now (Ctrl+S; in Chrome and Edge it keeps one backup file up to date), Export All as JSON, CSV or ZIP, Import Backup (now also takes the .zip) and Import from Google Keep.
+- New: Export All (CSV), one row per note for Excel, Numbers or Google Sheets. New: Export All (ZIP), the backup, the spreadsheet and your attached files in one download.
+- Pictures and attached files now open right in the app (photo viewer, PDFs, text files) instead of downloading. Click a thumbnail on a note card to see it. Files that are on another device say so.
+- Quieter backup reminders when you're signed in and syncing: the Data menu just says "Synced to your account".
+- Even top bar: every button, the light/dark switch and the account button are the same height.
+- Profile picture and screen name for your mcbflow.com account: account button → Edit profile. The same picture and name show in every app.
+- A greeting above All notes: "Good morning", or "Good morning, Matthew" with your screen name when you're signed in.
+- Settings now has a proper gear icon. The first tab keeps its name, "Notes" ("All notes" in the sidebar).
+- New name style: "Notes ∙ mcbflow.com". New footer with What's new, Privacy, Terms and More free apps, and a new Terms page.
+- "Delete all notes" is now Data → Clear all data (it still asks first, and still warns when it also deletes your synced notes).
+
 ## 1.4 · 2026-10-15
 - Optional free mcbflow.com account: sign in from Settings or the Data menu → Sync across devices to keep your notes the same on your phone and computer. Without an account, everything works as before and nothing leaves your device.
 - Attached files now live in the browser's database instead of next to your notes, so they no longer eat into the roughly 5 MB note space. Existing attachments move over automatically the first time you open this version.
@@ -9,7 +24,7 @@ Newest first. One entry per release, in plain words a user would understand.
 - Delete all notes warns that it also deletes your synced notes when signed in.
 
 ## 1.3 · 2026-10-14
-- Moved to notes.mcbflow.com. Notes saved at mbnotes.online don't carry over: export a backup there (Settings → Export backup) and import it here.
+- Moved to notes.mcbflow.com. Notes saved at the old address don't carry over: export a backup there and import it here.
 - Storage names simplified.
 
 ## 1.2 · 2026-10-14

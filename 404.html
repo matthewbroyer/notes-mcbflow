@@ -26,7 +26,8 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius
 header{width:min(720px,100% - 32px);margin:0 auto;padding:20px 0 0}
 .brand{display:inline-flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:650;font-size:16px}
 .brand svg{width:34px;height:34px;flex:none;border-radius:8px}
-.brand i{font-style:normal;color:var(--accent)}
+.brand i{font-style:normal;font-weight:500;color:var(--accent)}
+.brand .sep{margin:0 .32em 0 .34em;color:var(--muted);font-weight:400}
 main{flex:1;width:min(720px,100% - 32px);margin:18px auto 24px}
 .card{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--border);border-radius:8px;
  box-shadow:0 1px 2px rgba(20,24,31,.06),0 12px 32px -18px rgba(20,24,31,.28);padding:28px 28px 0}
@@ -53,7 +54,7 @@ footer a{color:var(--muted);text-decoration:none}footer a:hover{color:var(--acce
 </head>
 <body>
 <div class="bar"></div>
-<header><a class="brand" href="/"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="nfav-g" gradientUnits="userSpaceOnUse" x1="10" y1="0" x2="54" y2="64"><stop offset="0" stop-color="#edbe2b"/><stop offset=".55" stop-color="#EAB308"/><stop offset="1" stop-color="#bb8f06"/></linearGradient><clipPath id="nfav-c"><rect width="64" height="64" rx="18"/></clipPath></defs><g clip-path="url(#nfav-c)"><rect width="64" height="64" fill="url(#nfav-g)"/><path d="M24 26.5h16M24 33.5h16M24 40.5h9" stroke="#fff" stroke-opacity=".55" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M17.5 14.5h21.5l7.5 7.5v27.5h-29z" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M39 14.5v7.5h7.5" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg><span>notes<i>.mcbflow.com</i></span></a></header>
+<header><a class="brand" href="/" aria-label="Notes (notes.mcbflow.com): go to All notes"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="nfav-g" gradientUnits="userSpaceOnUse" x1="10" y1="0" x2="54" y2="64"><stop offset="0" stop-color="#edbe2b"/><stop offset=".55" stop-color="#EAB308"/><stop offset="1" stop-color="#bb8f06"/></linearGradient><clipPath id="nfav-c"><rect width="64" height="64" rx="18"/></clipPath></defs><g clip-path="url(#nfav-c)"><rect width="64" height="64" fill="url(#nfav-g)"/><path d="M24 26.5h16M24 33.5h16M24 40.5h9" stroke="#fff" stroke-opacity=".55" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M17.5 14.5h21.5l7.5 7.5v27.5h-29z" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M39 14.5v7.5h7.5" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg><span>Notes<i class="tld"><span class="sep" aria-hidden="true">∙</span>mcbflow.com</i></span></a></header>
 <main>
 <div class="card">
 <span class="code"><b>404</b><i aria-hidden="true">·</i>Page not found</span>
@@ -66,6 +67,6 @@ footer a{color:var(--muted);text-decoration:none}footer a:hover{color:var(--acce
 <svg class="art" viewBox="0 0 640 136" preserveAspectRatio="xMaxYMax slice" aria-hidden="true" focusable="false"><circle class="b" cx="560" cy="46" r="26"/><path class="s" d="M210 150 C315 80 525 80 630 150Z"/><path class="m" d="M410 150 C485 66 635 66 710 150Z"/><path class="d" d="M530 150 C585 90 695 90 750 150Z"/><path class="n" transform="translate(470 98) rotate(-64) scale(0.5)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><path class="d" transform="translate(480 98) rotate(-116) scale(0.4)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><circle class="r" cx="360" cy="44" r="6"/></svg>
 </div>
 </main>
-<footer><span>notes.mcbflow.com</span><a href="/privacy.html">Privacy</a><a href="https://mcbflow.com/">mcbflow.com</a><span>© 2026 Matthew Broyer. All rights reserved.</span></footer>
+<footer><span>notes.mcbflow.com</span><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="https://mcbflow.com/">mcbflow.com</a><span>© 2026 Matthew Broyer. All rights reserved.</span></footer>
 </body>
 </html>

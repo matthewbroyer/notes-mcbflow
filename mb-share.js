@@ -1,5 +1,5 @@
 /* =====================================================================
-   MB Suite v3 · share cards for progress, updates and milestones. No dependencies.
+   MB Suite v3 · share cards for progress, updates and milestones. No dependencies.  · mb-share 3.4 (2026-10-16b: "Money ∙ mcbflow.com" wordmark like the apps)
    Draws a 1080×1080 PNG on the device (canvas) in the app's own colors, shows a preview, then
    opens the phone/computer share sheet (Web Share API with files) or saves the image.
    Nothing is uploaded anywhere; the card holds only what the preview shows.
@@ -11,7 +11,7 @@
        sub: 'January to October 2026',              // one supporting line (optional)
        stats: [{ label: 'Months tracked', value: '10' }, { label: 'Savings rate', value: '22%' }],   // 0-3 (optional)
        art: document.querySelector('#share-art svg'),   // an NA-/CU- template <svg> already in the page (optional)
-       fileName: 'mbmoney-milestone.png',
+       fileName: 'money-milestone.png',
        options: [ { id: 'amounts', label: 'Show dollar amounts', value: false } ],   // optional privacy toggles
        build: function (opts) { return { headline: …, stats: … } }                  // re-builds the text when a toggle changes
      });
@@ -86,8 +86,9 @@
       var x = 72, y = 92;
       if (imgs[0]) g.drawImage(imgs[0], x, y - 4, 72, 72);
       g.fillStyle = C.ink; g.font = '650 34px ' + FONT; g.textBaseline = 'middle';
-      var sfx = (domain.match(/(\.mcbflow\.com|\.online)$/) || [''])[0], nm = sfx ? domain.slice(0, -sfx.length) : domain; g.fillText(nm, x + 92, y + 32);
-      if (sfx) { var nw = g.measureText(nm).width; g.fillStyle = C.accent; g.fillText(sfx, x + 92 + nw, y + 32); }
+      g.fillText(app, x + 92, y + 32);   // v3.4 wordmark: "Money ∙ mcbflow.com" (short name, muted bullet, accent mcbflow.com)
+      var nw = g.measureText(app).width; g.font = '500 30px ' + FONT; g.fillStyle = C.muted; g.fillText('  ∙  ', x + 92 + nw, y + 32);
+      var bw = g.measureText('  ∙  ').width; g.fillStyle = C.accent; g.fillText('mcbflow.com', x + 92 + nw + bw, y + 32);
       // kicker + headline + sub
       g.textBaseline = 'alphabetic'; y = 300;
       if (d.kicker) { g.fillStyle = C.accent; g.font = '700 30px ' + FONT; g.fillText(String(d.kicker).toUpperCase(), x, y); y += 26; }
@@ -126,7 +127,7 @@
       // footer: where it came from (this is what helps the app grow)
       g.fillStyle = C.ink2; g.font = '600 28px ' + FONT;
       g.fillText((d.date ? d.date + '  ·  ' : '') + 'Made with ' + domain, x, W - 64);
-      g.fillStyle = C.muted; g.font = '400 24px ' + FONT; g.fillText('Free · No account · Your data stays on your device', x, W - 30);
+      g.fillStyle = C.muted; g.font = '400 24px ' + FONT; g.fillText('Free · No account needed · No tracking', x, W - 30);   // true with or without the optional sync account
       return c;
     });
   }

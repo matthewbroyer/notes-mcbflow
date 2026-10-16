@@ -14,7 +14,7 @@
   --ctl:38px; --ctl-sm:32px;
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px;
   --ease:120ms ease;
-  /* page width: every app's header and content share one container (mbmoney.online's) */
+  /* page width: every app's header and content share one container (money.mcbflow.com's) */
   --page-max:1280px; --gutter:16px;
   /* neutrals */
   --bg:#f3f4f6; --surface:#ffffff; --surface-2:#f6f7f9; --surface-3:#eceef2;

@@ -6,8 +6,10 @@
    Attachment contents (data: URLs) live in IndexedDB 'notes.files', keyed by attachment id. In memory each
    attachment also carries .data when the file is on this device. An attachment stays in localStorage
    (with its data) until IndexedDB has confirmed it, so a failed write never loses it.
-   Other keys: 'notes.theme', 'notes.hasVisited', 'notes.lastBackup', 'notes.draft', 'notes.sync'.
+   Other keys: 'notes.theme', 'notes.hasVisited' (welcome screen + sample notes done), 'notes.lastBackup', 'notes.draft',
+   'notes.sync' + 'notes.keepSignedIn' (mb-sync.js). IndexedDB 'notes.handles' keeps the "Save backup now" file handle (Chrome/Edge).
    Network: none, unless the person signs in to the optional sync (mb-sync.js). No inline handlers.
+   v1.5 (MB Suite v3.3): welcome screen, account button, standard Data menu (JSON/CSV/ZIP), Settings page, MBFiles viewer.
    ===================================================================== */
 'use strict';
 
@@ -17,6 +19,7 @@ const VISITED_KEY = 'notes.hasVisited';
 const BACKUP_KEY = 'notes.lastBackup';
 const DRAFT_KEY = 'notes.draft';
 const MAX_FILE = 4 * 1024 * 1024;
+const APP_KEY = 'notes';                      // file names: notes-backup-YYYY-MM-DD.json / .zip, notes-all-YYYY-MM-DD.csv
 const isSample = n => /^sample-/.test(n.id) && n.updatedAt === n.createdAt;   // untouched sample notes aren't synced
 
 const COLORS = [
@@ -93,6 +96,32 @@ function colorToDark(color) { const c = COLORS.find(x => x[0] === color); return
 function isISO(s) { return typeof s === 'string' && !isNaN(new Date(s).getTime()); }
 function icon(id, cls) { return `<svg class="uic${cls ? ' ' + cls : ''}" aria-hidden="true" focusable="false"><use href="#i-${id}"/></svg>`; }
 function plural(n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); }
+function today() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function localStamp(iso) {          // "2026-10-16 14:05" for spreadsheets
+  const d = new Date(iso); if (isNaN(d)) return '';
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function shortDate(ms) { return new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+function daysAgo(ms) {
+  const a = new Date(); a.setHours(0, 0, 0, 0); const b = new Date(ms); b.setHours(0, 0, 0, 0);
+  const d = Math.round((a - b) / 86400000);
+  return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d + ' days ago';
+}
+function dataUrlToBlob(dataUrl, fallbackType) {
+  try {
+    const i = dataUrl.indexOf(','); if (!/^data:/i.test(dataUrl) || i < 0) return null;
+    const head = dataUrl.slice(0, i), body = dataUrl.slice(i + 1);
+    const type = (head.match(/^data:([^;,]*)/i) || [])[1] || fallbackType || 'application/octet-stream';
+    const bin = /;base64/i.test(head) ? atob(body.replace(/\s/g, '')) : decodeURIComponent(body);
+    const bytes = new Uint8Array(bin.length);
+    for (let k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+    return new Blob([bytes], { type });
+  } catch (e) { return null; }
+}
+function blobToDataUrl(blob) { return new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.onerror = () => r(null); fr.readAsDataURL(blob); }); }
+function safeFileName(name) { return String(name || 'file').replace(/[\u0000-\u001f\\/:*?"<>|]+/g, '_').replace(/^\.+/, '_').slice(0, 100) || 'file'; }
+function canSaveFile() { try { return typeof window.showSaveFilePicker === 'function' && window.self === window.top; } catch (e) { return false; } }
 
 /* Make any stored / imported object a well-formed note without dropping fields the app knows. */
 function normalizeNote(n) {
@@ -155,6 +184,18 @@ const FileDB = {
   putMany(list) { return this.run('readwrite', s => { for (const [k, v] of list) s.put(v, k); }); },
   delMany(keys) { return this.run('readwrite', s => { for (const k of keys) s.delete(k); }); }
 };
+/* "Save backup now" remembers the chosen backup file (Chrome/Edge File System Access) in its own small database. */
+const HandleDB = {
+  open() {
+    return this.db || (this.db = new Promise((res, rej) => {
+      const r = indexedDB.open('notes.handles', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('h');
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); r.onblocked = () => rej(new Error('blocked'));
+    }));
+  },
+  async get(k) { const d = await this.open(); return new Promise((res, rej) => { const q = d.transaction('h', 'readonly').objectStore('h').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
+  async set(k, v) { const d = await this.open(); return new Promise((res, rej) => { const t = d.transaction('h', 'readwrite'); t.objectStore('h').put(v, k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); }
+};
 
 class MBNotes {
   constructor() {
@@ -180,6 +221,8 @@ class MBNotes {
     this.sync = null;            // optional account sync (mb-sync.js)
     this.autoSaveTimer = null;
     this.lastFocus = null;
+    this.backupHandle = null;    // "Save backup now" file (Chrome/Edge)
+    this.welcomePending = false;
     this.init();
   }
 
@@ -188,14 +231,25 @@ class MBNotes {
     this.syncThemeSwitches();
     this.loadNotes();
     this.buildSwatches();
+    this.buildDataLists();
     this.bindEvents();
+    this.bindWelcome();
+    // First visit: sample notes + the welcome screen. 'notes.hasVisited' is set when the welcome is finished or skipped
+    // (a reload part-way through shows it again; the samples are only ever added once, to an empty list).
     const hasVisited = this.lsGet(VISITED_KEY);
-    if (!hasVisited && this.notes.length === 0) {
-      this.seedDemoNotes(true);
-      this.lsSet(VISITED_KEY, 'true');
+    if (!hasVisited && this.notes.length === 0) this.seedDemoNotes(true);
+    if (!hasVisited) {
+      const signedIn = !!(window.MBSync && MBSync.hasSavedSignIn && MBSync.hasSavedSignIn());
+      if (signedIn || this.notes.some(n => !isSample(n))) this.lsSet(VISITED_KEY, 'true');
+      else this.welcomePending = true;
     }
+    if (window.MBSync && MBSync.greeting) document.getElementById('greet').textContent = MBSync.greeting('');   // sync.greet() takes over once sync starts
+    if (!window.MBSync) { document.getElementById('acctBtn').hidden = true; document.getElementById('greet').hidden = true; document.getElementById('syncCard').innerHTML = '<p class="muted" style="margin:0">Sync isn’t available in this browser.</p>'; }
     this.restoreDraft();
     this.setView('all', { silent: true });
+    this.updateDataUI();
+    if (canSaveFile() && window.indexedDB) HandleDB.get('json').then(h => { if (h && h.kind === 'file') { this.backupHandle = h; this.updateDataUI(); } }).catch(() => {});
+    if (this.welcomePending) this.openWelcome();
     if (window.MBInstall) MBInstall.registerSW('sw.js');
     this.ready = this.loadFiles().catch(() => {}).then(() => {
       this.filesReady = true;
@@ -256,12 +310,22 @@ class MBNotes {
     if (!window.MBSync || this.sync) return;
     this.sync = MBSync.create({
       app: 'notes', label: 'Notes',
+      what: 'your notes, checklists and tags',
+      note: 'Attachments stay on each device.',
       toRecords: () => this.syncRecords(),
       fromRecords: m => this.syncApply(m),
       hasData: () => this.notes.some(n => !isSample(n)),
       onStatus: () => this.renderSyncUI()
     });
+    this.sync.button(document.getElementById('acctBtn'));
+    this.sync.card(document.getElementById('syncCard'));
+    this.sync.greet(document.getElementById('greet'), { name: '' });   // "Good morning", or "Good morning, <screen name>" when signed in
+    window.addEventListener('mbsync:status', () => this.renderSyncUI());
     this.renderSyncUI();
+  }
+  openSync() {          // the sync engine starts once attachments have loaded (a moment after the page opens)
+    if (this.sync) { this.sync.open(); return; }
+    if (window.MBSync && this.ready) this.ready.then(() => { if (this.sync) this.sync.open(); });
   }
   syncRecords() {
     const r = {};
@@ -288,13 +352,57 @@ class MBNotes {
     this.render(); if (this.filter === 'settings') this.renderSettings();
   }
   renderSyncUI() {
-    if (!this.sync) return;
-    const s = this.sync.status(), $ = id => document.getElementById(id);
-    $('syncCard').hidden = false; $('syncMenu').hidden = false;
-    $('syncText').textContent = s.signedIn ? `Signed in as ${s.email} · ${s.label}. Attachments stay on each device.`
-      : 'Optional free mcbflow.com account. Keeps your notes the same on your phone and computer. Attachments stay on each device.';
-    $('syncBtnText').textContent = s.signedIn ? 'Sync details' : 'Sign in to sync';
-    $('syncMenuText').textContent = s.signedIn ? 'Sync: ' + s.label : 'Sync across devices…';
+    this.updateDataUI();
+    if (!document.getElementById('welcome').hidden) this.renderWelcomeAcct();
+  }
+
+  /* ---------- Data menu + Settings "Backup & data" (MB Suite v3.3 .mb-dm: same items, words and order in every app) ---------- */
+  dataListHTML(menu) {
+    const r = menu ? ' role="menuitem"' : '', sec = menu ? ' role="presentation"' : '';
+    const it = (cls, act, ic, title, desc, extra) => `<button type="button" class="mb-dm-it${cls}"${r} data-action="${act}">${icon(ic)}<span class="t"><b>${title}</b><small>${desc}</small></span>${extra || ''}</button>`;
+    return it(' is-key dm-save', 'backup', 'save', 'Save backup now', 'Updates your backup file in one click. Best for regular backups.', '<kbd>Ctrl+S</kbd>') +
+      it(' dm-sync', 'sync', 'sync', 'Sync across devices…', 'Free, optional account. Keeps your phone and computer the same.') +
+      `<div class="mb-dm-sec"${sec}>Export</div>` +
+      it('', 'export', 'json', 'Export All (JSON)…', 'Complete backup of everything. Best for restoring or moving to another browser.') +
+      it('', 'export-csv', 'csv', 'Export All (CSV)…', 'Spreadsheet copy for Excel, Numbers or Google Sheets. Best for totals and reports.') +
+      it('', 'export-zip', 'zip', 'Export All (ZIP)…', 'Backup, spreadsheets and your attachments in one file. Best for archiving everything.') +
+      `<div class="mb-dm-sec"${sec}>Import</div>` +
+      it('', 'import', 'upload', 'Import Backup…', 'Restore from a JSON or ZIP file. You choose Merge or Replace first.') +
+      it('', 'keep', 'import', 'Import from Google Keep…', 'Bring in notes, checklists, labels and images from a Google Takeout file.') +
+      `<div class="mb-dm-status"${sec}><span class="sq"></span><span class="dm-st">Never backed up</span></div>` +
+      `<p class="mb-dm-note"></p><hr class="mb-dm-sep">` +
+      it(' danger dm-clear', 'delete-all', 'trash', 'Clear all data…', 'Deletes everything in this browser. You can save a backup first.');
+  }
+  buildDataLists() {
+    document.getElementById('dataMenu').innerHTML = this.dataListHTML(true);
+    document.getElementById('dataList').innerHTML = this.dataListHTML(false);
+  }
+  lastBackupMs() { const v = this.lsGet(BACKUP_KEY); const t = v ? new Date(v).getTime() : NaN; return isNaN(t) ? 0 : t; }
+  markBackedUp() { this.lsSet(BACKUP_KEY, new Date().toISOString()); this.updateDataUI(); }
+  updateDataUI() {
+    const s = this.sync ? this.sync.status() : null, signedIn = !!(s && s.signedIn), quiet = !!(s && s.quietBackups);
+    const last = this.lastBackupMs();
+    const saveDesc = !canSaveFile() ? 'Downloads a backup file in one click. Best for regular backups.'
+      : this.backupHandle ? 'Updates your backup file in one click. Best for regular backups.'
+      : 'Choose where to keep your backup file. After that it’s one click.';
+    let st, cls = '';
+    if (quiet) { st = 'Synced to your account · last file backup ' + (last ? shortDate(last) : 'none yet'); cls = 'ok'; }
+    else if (last) { st = `Last backup ${shortDate(last)} · ${daysAgo(last)}`; if (Date.now() - last < 7 * 86400000) cls = 'ok'; }
+    else st = 'Never backed up';
+    const note = signedIn ? 'Synced to your mcbflow.com account (attachments stay on each device). A file backup now and then is still a good idea.'
+      : 'Your data is stored in this browser on this device. Clearing your browser data deletes it, so keep a backup.';
+    document.querySelectorAll('#dataMenu, #dataList').forEach(box => {
+      box.querySelector('.dm-save small').textContent = saveDesc;
+      const sy = box.querySelector('.dm-sync');
+      sy.hidden = !window.MBSync;
+      sy.querySelector('b').textContent = signedIn ? 'Sync: ' + s.label : 'Sync across devices…';
+      sy.querySelector('small').textContent = signedIn ? 'Signed in as ' + s.email : 'Free, optional account. Keeps your phone and computer the same.';
+      const stEl = box.querySelector('.mb-dm-status');
+      stEl.classList.toggle('ok', cls === 'ok'); stEl.classList.toggle('warn', cls === 'warn');
+      stEl.querySelector('.dm-st').textContent = st;
+      box.querySelector('.mb-dm-note').textContent = note;
+      box.querySelector('.dm-clear small').textContent = signedIn ? 'Deletes everything here and your synced copy.' : 'Deletes everything in this browser. You can save a backup first.';
+    });
   }
   lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
@@ -321,8 +429,8 @@ class MBNotes {
     const now = Date.now();
     const demos = [
       {
-        id: 'sample-' + uuid(), title: 'Welcome to notes.mcbflow.com',
-        content: 'Notes save to this browser. Nothing is uploaded unless you turn on sync (optional, in Settings).<br><br><b>Try these:</b><br>• Bold, italic and lists from the toolbar<br>• Link notes with [[Project ideas]]<br>• Add #tags to filter by them<br>• Paste https://mcbflow.com and it becomes a link<br><br>Moving from Google Keep? Settings → Import from Google Keep.',
+        id: 'sample-' + uuid(), title: 'Welcome to Notes',
+        content: '<b>Try these:</b><br>• Bold, italic and lists from the toolbar<br>• Link notes with [[Project ideas]]<br>• Add #tags to filter by them<br>• Paste https://mcbflow.com and it becomes a link<br><br>Moving from Google Keep? Data → Import from Google Keep.',
         color: 'bg-amber-100', darkClass: 'note-amber', pinned: true, isChecklist: false, checklistItems: [], attachments: [], tags: ['welcome'],
         archived: false, trashed: false, createdAt: new Date(now).toISOString(), updatedAt: new Date(now).toISOString()
       },
@@ -353,8 +461,10 @@ class MBNotes {
     this.lsSet(THEME_KEY, t);
     this.syncThemeSwitches();
   }
-  syncThemeSwitches() {
-    document.querySelectorAll('.themesw').forEach(b => b.setAttribute('aria-checked', String(this.isDark())));
+  syncThemeSwitches() {      // bar switch, Settings (Light | Dark) and the welcome's Pick a look stay in step
+    const dark = this.isDark();
+    document.querySelectorAll('.themesw').forEach(b => b.setAttribute('aria-checked', String(dark)));
+    document.querySelectorAll('[data-theme-set]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === (dark ? 'dark' : 'light'))));
   }
 
   /* ---------- views ---------- */
@@ -425,14 +535,19 @@ class MBNotes {
         else if (a === 'new-checklist') this.newNote(true);
         else if (a === 'close-capture') this.closeCapture();
         else if (a === 'close-modal') this.closeModal();
+        else if (a === 'backup') this.saveBackupNow();
         else if (a === 'export') this.exportJSON();
+        else if (a === 'export-csv') this.exportCSV();
+        else if (a === 'export-zip') this.exportZIP();
         else if (a === 'import') $('importFile').click();
         else if (a === 'keep') { if (this.filter !== 'settings') this.setView('settings'); $('keepFile').click(); }
         else if (a === 'seed') this.seedDemoNotes(false);
         else if (a === 'clear-search') this.setQuery('');
         else if (a === 'empty-trash') this.emptyTrash();
         else if (a === 'delete-all') this.deleteAll();
-        else if (a === 'sync') { if (this.sync) this.sync.open(); }
+        else if (a === 'sync') this.openSync();
+        else if (a === 'whats-new') { const d = $('newsDlg'); if (!d.open) d.showModal(); }
+        else if (a === 'close-news') $('newsDlg').close();
         else if (a === 'share-stats') this.shareStats();
         else if (a === 'share-checklist') this.shareChecklist(this.editingId);
         else if (a === 'view-imported') this.setView('all');
@@ -442,7 +557,7 @@ class MBNotes {
 
     // brand + theme
     $('themeBtn').addEventListener('click', () => this.setTheme(this.isDark() ? 'light' : 'dark'));
-    $('themeBtn2').addEventListener('click', () => this.setTheme(this.isDark() ? 'light' : 'dark'));
+    document.addEventListener('click', e => { const b = e.target.closest('[data-theme-set]'); if (b) this.setTheme(b.dataset.themeSet); });
     // phones: the bar's search icon jumps to the search field under the banner
     $('searchTb').addEventListener('click', () => { const f = $('searchPhone'); f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); });
 
@@ -450,7 +565,7 @@ class MBNotes {
     $('dataBtn').addEventListener('click', e => { e.stopPropagation(); this.toggleMenu(); });
     document.addEventListener('click', e => { if (!e.target.closest('.menu-wrap')) this.closeMenu(); });
     $('dataMenu').addEventListener('keydown', e => {
-      const items = Array.from($('dataMenu').querySelectorAll('[role=menuitem]'));
+      const items = Array.from($('dataMenu').querySelectorAll('[role=menuitem]')).filter(b => !b.hidden);
       const i = items.indexOf(document.activeElement);
       if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
       if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
@@ -544,7 +659,7 @@ class MBNotes {
       const rm = e.target.closest('[data-rm]');
       if (rm) { this.removeAttachment(+rm.dataset.rm, mode); return; }
       const op = e.target.closest('[data-open-att]');
-      if (op) this.openAttachment((mode === 'capture' ? this.captureAttachments : this.editAttachments)[+op.dataset.openAtt]);
+      if (op) this.viewAttachments(mode === 'capture' ? this.captureAttachments : this.editAttachments, +op.dataset.openAtt, mode);
     }));
     ['c-checklist', 'e-checklist'].forEach(id => this.bindChecklistEditor($(id), id === 'c-checklist' ? 'capture' : 'edit'));
 
@@ -566,6 +681,7 @@ class MBNotes {
       else if (act === 'restore') this.toggle(id, 'trashed');
       else if (act === 'delete') this.deletePermanent(id);
       else if (act === 'share-done') this.shareChecklist(id);
+      else if (act === 'view-att') { const n = this.notes.find(x => x.id === id); if (n) this.viewAttachments(n.attachments, +actEl.dataset.i); }
     });
     notes.addEventListener('change', e => {
       const cb = e.target.closest('[data-check]');
@@ -584,6 +700,7 @@ class MBNotes {
 
     // keyboard
     document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); this.saveBackupNow(); return; }
       if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         const t = e.target, tag = (t && t.tagName || '').toLowerCase();
         if (!(tag === 'input' || tag === 'textarea' || tag === 'select' || (t && t.isContentEditable) || document.querySelector('dialog[open]'))) {
@@ -1067,7 +1184,7 @@ class MBNotes {
     const isImage = /^image\//.test(a.type) && /^data:image\//.test(a.data || '');
     const away = !a.data && this.filesReady;
     return `<div class="att${away ? ' away' : ''}">
-      <button type="button" class="att-open" data-open-att="${i}" title="${away ? escapeHTML(a.name) + ' isn’t on this device' : 'Open ' + escapeHTML(a.name)}">${isImage ? `<img src="${escapeHTML(a.data)}" alt="">` : icon('file')}<span>${escapeHTML(a.name)}${away ? ' <i>(not on this device)</i>' : ''}</span></button>
+      <button type="button" class="att-open" data-open-att="${i}" aria-label="View ${escapeHTML(a.name)}${away ? ' (not on this device)' : ''}" title="${away ? escapeHTML(a.name) + ' isn’t on this device' : 'View ' + escapeHTML(a.name)}">${isImage ? `<img src="${escapeHTML(a.data)}" alt="">` : icon('file')}<span>${escapeHTML(a.name)}${away ? ' <i>(not on this device)</i>' : ''}</span></button>
       <button type="button" class="ib" data-rm="${i}" aria-label="Remove ${escapeHTML(a.name)}" title="Remove">${icon('x')}</button>
     </div>`;
   }
@@ -1075,21 +1192,34 @@ class MBNotes {
     if (mode === 'capture') { this.captureAttachments.splice(i, 1); this.renderCaptureAttachments(); }
     else { this.editAttachments.splice(i, 1); this.renderEditAttachments(); this.autoSaveEdit(); }
   }
-  openAttachment(a) {
+  /* Attachments open in the shared viewer (MBFiles.view): pictures, PDFs and text show in the app, other files get
+     Download / Open in new tab. Files that are on another device show a short explanation instead. */
+  attFile(a) {
+    if (!a.data) return { name: a.name, type: a.type, size: a.size, attId: a.id };
+    const blob = dataUrlToBlob(a.data, a.type);
+    return blob ? { blob, name: a.name, type: blob.type || a.type, size: a.size || blob.size, attId: a.id } : { url: a.data, name: a.name, type: a.type, attId: a.id };
+  }
+  viewAttachments(list, index, mode) {
+    if (!list || !list[index]) return;
+    if (!window.MBFiles) { this.openAttachment(list[index]); return; }
+    const opts = { list: list.map(a => this.attFile(a)), index };
+    if (mode === 'capture' || mode === 'edit') {       // the editors already let you remove an attachment; the viewer's Delete does the same
+      opts.onDelete = f => {
+        const arr = mode === 'capture' ? this.captureAttachments : this.editAttachments;
+        const i = arr.findIndex(x => x.id === f.attId);
+        if (i >= 0) this.removeAttachment(i, mode);
+      };
+    }
+    MBFiles.view(null, opts);
+  }
+  openAttachment(a) {          // fallback when mb-files.js didn't load
     if (!a) return;
     if (!a.data) { this.toast('That file is on another device. Attachments don\'t sync: export a backup there and import it here to bring files over.', { ms: 8000 }); return; }
-    try {
-      const [head, body] = a.data.split(',');
-      const type = (head.match(/^data:([^;,]*)/) || [])[1] || a.type || 'application/octet-stream';
-      const bin = /;base64/.test(head) ? atob(body) : decodeURIComponent(body);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      const url = URL.createObjectURL(new Blob([bytes], { type }));
-      const viewable = /^(image\/(png|jpe?g|gif|webp)|application\/pdf|text\/plain)$/i.test(type);
-      if (viewable) { const w = window.open(url, '_blank', 'noopener'); if (!w) this.download(url, a.name); }
-      else this.download(url, a.name);
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
-    } catch (e) { this.toast('Couldn\'t open that attachment.', { error: true }); }
+    const blob = dataUrlToBlob(a.data, a.type);
+    if (!blob) { this.toast('Couldn\'t open that attachment.', { error: true }); return; }
+    const url = URL.createObjectURL(blob);
+    this.download(url, a.name);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
   download(url, name) { const l = document.createElement('a'); l.href = url; l.download = name || 'file'; document.body.appendChild(l); l.click(); l.remove(); }
 
@@ -1219,9 +1349,12 @@ class MBNotes {
       : `
         <button type="button" class="ib" data-act="restore" aria-label="Restore: ${title}" title="Restore">${icon('restore')}</button>
         <button type="button" class="ib danger" data-act="delete" aria-label="Delete forever: ${title}" title="Delete forever">${icon('x')}</button>`;
-    const thumbs = note.attachments?.length ? `<div class="thumbs">${note.attachments.slice(0, 3).map(a => /^image\//.test(a.type) && /^data:image\//.test(a.data || '')
-      ? `<img src="${escapeHTML(a.data)}" alt="${escapeHTML(a.name)}" loading="lazy">`
-      : `<span class="att-mini${a.data || !this.filesReady ? '' : ' away'}"${a.data || !this.filesReady ? '' : ' title="Not on this device"'}>${icon('file')}${escapeHTML(a.name.slice(0, 16))}</span>`).join('')}${note.attachments.length > 3 ? `<span class="att-mini">+${note.attachments.length - 3}</span>` : ''}</div>` : '';
+    const thumbs = note.attachments?.length ? `<div class="thumbs">${note.attachments.slice(0, 3).map((a, i) => {
+      const away = !a.data && this.filesReady, nm = escapeHTML(a.name);
+      return /^image\//.test(a.type) && /^data:image\//.test(a.data || '')
+        ? `<button type="button" class="thumb" data-act="view-att" data-i="${i}" aria-label="View ${nm}" title="View ${nm}"><img src="${escapeHTML(a.data)}" alt="" loading="lazy"></button>`
+        : `<button type="button" class="att-mini${away ? ' away' : ''}" data-act="view-att" data-i="${i}" aria-label="View ${nm}${away ? ' (not on this device)' : ''}" title="${away ? 'Not on this device' : 'View ' + nm}">${icon('file')}${escapeHTML(a.name.slice(0, 16))}</button>`;
+    }).join('')}${note.attachments.length > 3 ? `<button type="button" class="att-mini" data-act="view-att" data-i="3" aria-label="View all ${note.attachments.length} attachments">+${note.attachments.length - 3}</button>` : ''}</div>` : '';
     const shown = items;
     const cl = total > 0 ? `
         <div class="cl">
@@ -1373,9 +1506,10 @@ class MBNotes {
     document.getElementById('storageLine').textContent = this.fsOK
       ? `About ${size(chars)} of notes in this browser${fileBytes ? `, plus ${size(fileBytes)} of attachments stored separately` : ''}.`
       : `About ${size(chars)} of notes in this browser` + (withFiles ? `, mostly attachments on ${plural(withFiles, 'note')}` : '') + '. Browsers usually allow around 5 MB per site.';
-    const last = this.lsGet(BACKUP_KEY);
-    document.getElementById('lastBackup').textContent = last ? `Last backup from this browser: ${new Date(last).toLocaleDateString()}` : 'No backup exported from this browser yet.';
+    this.updateDataUI();
     if (window.MBInstall) MBInstall.render();
+    const box = document.querySelector('[data-mb-install]');
+    document.getElementById('installFallback').hidden = !!(window.MBInstall && box && !box.hidden);
   }
 
   /* ---------- share cards (MBShare) ---------- */
@@ -1419,23 +1553,125 @@ class MBNotes {
   }
 
   /* ---------- backup ---------- */
-  exportJSON() {
+  backupText() {            // "Export All (JSON)": the notes array, with the attachment files on this device embedded (same format as always)
     if (this.editingId) this.autoSaveEdit();
-    const data = JSON.stringify(this.notes, null, 2);
+    return JSON.stringify(this.notes, null, 2);
+  }
+  exportJSON() {
+    const data = this.backupText();
     const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
-    this.download(url, `notes-backup-${new Date().toISOString().slice(0, 10)}.json`);
+    this.download(url, `${APP_KEY}-backup-${today()}.json`);
     setTimeout(() => URL.revokeObjectURL(url), 30000);
-    this.lsSet(BACKUP_KEY, new Date().toISOString());
+    this.markBackedUp();
     if (this.filter === 'settings') this.renderSettings();
     this.toast(`Backup downloaded (${plural(this.notes.length, 'note')})`);
+  }
+  /* Save backup now (Ctrl+S): Chrome/Edge ask once where to keep the file, then overwrite it in one click.
+     Other browsers download a dated backup, exactly like Export All (JSON). */
+  async saveBackupNow() {
+    if (!canSaveFile()) { this.exportJSON(); return; }
+    if (this.savingBackup) return;
+    this.savingBackup = true;
+    const write = async h => { const w = await h.createWritable(); await w.write(this.backupText()); await w.close(); };
+    try {
+      const h = this.backupHandle;
+      if (h) {
+        let ok = false;
+        try { const o = { mode: 'readwrite' }; ok = (await h.queryPermission(o)) === 'granted' || (await h.requestPermission(o)) === 'granted'; } catch (e) {}
+        if (ok) {
+          try { await write(h); this.markBackedUp(); this.toast(`Backed up ${plural(this.notes.length, 'note')} to ${h.name}`); return; }
+          catch (e) { this.toast(`Couldn’t update ${h.name} (it may have moved). Choose where to save it.`, { ms: 6000 }); }
+        }
+      }
+      let nh;
+      try { nh = await window.showSaveFilePicker({ suggestedName: `${APP_KEY}-backup.json`, types: [{ description: 'Notes backup (JSON)', accept: { 'application/json': ['.json'] } }] }); }
+      catch (e) { if (e && e.name === 'AbortError') return; this.exportJSON(); return; }
+      try { await write(nh); }
+      catch (e) { this.toast(`Couldn’t write ${nh.name}. Try a different folder.`, { error: true }); return; }
+      this.backupHandle = nh;
+      HandleDB.set('json', nh).catch(() => {});
+      this.markBackedUp();
+      this.toast(`Saved ${nh.name}. Save backup now (Ctrl+S) keeps it up to date.`, { ms: 5000 });
+    } finally {
+      this.savingBackup = false;
+      this.updateDataUI();
+    }
+  }
+  csvText() {
+    const cols = [
+      { key: 'title', label: 'title' }, { key: 'text', label: 'text' }, { key: 'tags', label: 'tags' },
+      { key: 'pinned', label: 'pinned' }, { key: 'archived', label: 'archived' }, { key: 'trashed', label: 'trashed' },
+      { key: 'attachments', label: 'attachments' }, { key: 'created', label: 'created' }, { key: 'updated', label: 'updated' }
+    ];
+    const rows = this.notes.map(n => {
+      const items = (n.checklistItems || []).map(i => (i.completed ? '☑ ' : '☐ ') + i.text).join('\n');
+      const text = [htmlToText(n.content), items].filter(Boolean).join('\n\n');
+      return {
+        title: n.title, text, tags: (n.tags || []).map(t => '#' + t).join(' '),
+        pinned: n.pinned ? 'yes' : 'no', archived: n.archived ? 'yes' : 'no', trashed: n.trashed ? 'yes' : 'no',
+        attachments: (n.attachments || []).map(a => a.name).join('; '),
+        created: localStamp(n.createdAt), updated: localStamp(n.updatedAt)
+      };
+    });
+    return MBFiles.csv(rows, cols);
+  }
+  exportCSV() {
+    if (!window.MBFiles) return;
+    if (this.editingId) this.autoSaveEdit();
+    MBFiles.download(new Blob([this.csvText()], { type: 'text/csv' }), `${APP_KEY}-all-${today()}.csv`);
+    this.toast(`Spreadsheet downloaded (${plural(this.notes.length, 'note')})`);
+  }
+  async exportZIP() {
+    if (!window.MBFiles) return;
+    const json = this.backupText();
+    const entries = [{ name: `${APP_KEY}-backup.json`, data: json }, { name: `${APP_KEY}-all.csv`, data: this.csvText() }];
+    const seen = new Set(); let files = 0, away = 0;
+    for (const n of this.notes) for (const a of n.attachments) {
+      if (seen.has(a.id)) continue; seen.add(a.id);
+      const blob = a.data ? dataUrlToBlob(a.data, a.type) : null;
+      if (blob) { entries.push({ name: `files/${safeFileName(a.id)}-${safeFileName(a.name)}`, data: blob }); files++; } else away++;
+    }
+    entries.push({ name: 'README.txt', data: [
+      `Notes (notes.mcbflow.com) export · ${new Date().toLocaleString()}`, '',
+      `${APP_KEY}-backup.json  Complete backup of all ${plural(this.notes.length, 'note')} (Archive and Trash too), with the attached files on this device inside it.`,
+      `                    Restore it with Data → Import Backup… (choose this .json or the whole .zip).`,
+      `${APP_KEY}-all.csv       One row per note (title, text, tags, pinned, archived, trashed, attachments, created, updated)`,
+      `                    for Excel, Numbers or Google Sheets.`,
+      `files/             The ${plural(files, 'attached file')} as normal files (named <attachment id>-<file name>).` + (away ? ` ${plural(away, 'attachment')} added on another device ${away === 1 ? 'isn’t' : 'aren’t'} included.` : ''),
+      '', 'Everything here was made on your device. Nothing was uploaded.', ''
+    ].join('\r\n') });
+    try {
+      const blob = await MBFiles.zip(entries);
+      MBFiles.download(blob, `${APP_KEY}-backup-${today()}.zip`);
+    } catch (e) { this.toast('Couldn’t make the .zip in this browser. Use Export All (JSON) instead.', { error: true, ms: 7000 }); return; }
+    this.markBackedUp();
+    this.toast(`ZIP downloaded (${plural(this.notes.length, 'note')}, ${plural(files, 'file')})`);
   }
   async importJSON(e) {
     const file = e.target.files[0];
     e.target.value = '';
     if (!file) return;
-    let data;
-    try { data = JSON.parse(await file.text()); }
-    catch (err) { this.toast('That file isn\'t a readable backup. Choose a .json file exported from notes.mcbflow.com or mbnotes.online.', { error: true, ms: 8000 }); return; }
+    let data, zipFiles = null;
+    let isZip = /\.zip$/i.test(file.name) || /zip/i.test(file.type);
+    if (!isZip) { try { const sig = new Uint8Array(await file.slice(0, 2).arrayBuffer()); isZip = sig[0] === 0x50 && sig[1] === 0x4b; } catch (err) {} }
+    if (isZip) {            // Export All (ZIP): run the normal JSON import on the backup inside it, and restore files from files/
+      let ents;
+      try { if (!window.MBFiles) throw new Error('no MBFiles'); ents = await MBFiles.unzip(file); }
+      catch (err) { this.toast('That .zip couldn’t be opened. Choose a .zip or .json exported from Notes.', { error: true, ms: 8000 }); return; }
+      const jsons = ents.filter(x => /\.json$/i.test(x.name));
+      const js = jsons.find(x => /(^|\/)[^/]*-backup\.json$/i.test(x.name)) || (jsons.length === 1 ? jsons[0] : null);
+      if (!js) {
+        const takeout = ents.some(x => /(^|\/)Keep\//.test(x.name));
+        this.toast(takeout ? 'That’s a Google Takeout file. Use Data → Import from Google Keep instead.' : 'That .zip doesn’t contain a Notes backup (notes-backup.json).', { error: true, ms: 8000 });
+        return;
+      }
+      try { data = JSON.parse(await js.text()); }
+      catch (err) { this.toast('The backup inside that .zip isn’t readable.', { error: true, ms: 8000 }); return; }
+      zipFiles = ents.filter(x => /^files\//.test(x.name));
+    } else {
+      try { data = JSON.parse(await file.text()); }
+      catch (err) { this.toast('That file isn\'t a readable backup. Choose a .json or .zip exported from Notes.', { error: true, ms: 8000 }); return; }
+    }
     const arr = Array.isArray(data) ? data : (data && Array.isArray(data.notes) ? data.notes : null);
     if (!arr) {
       const keepish = data && typeof data === 'object' && ('textContent' in data || 'listContent' in data);
@@ -1445,6 +1681,14 @@ class MBNotes {
     const incoming = arr.map(normalizeNote).filter(Boolean);
     if (!incoming.length) { this.toast('No notes found in that file.', { error: true }); return; }
     const fileData = new Map(); incoming.forEach(n => n.attachments.forEach(a => { if (a.data) fileData.set(a.id, a.data); }));
+    if (zipFiles && zipFiles.length) {      // attachments the JSON lists without data, but whose file is in the .zip's files/ folder
+      for (const n of incoming) for (const a of n.attachments) {
+        if (a.data || fileData.has(a.id)) continue;
+        const ent = zipFiles.find(x => x.name.startsWith(`files/${safeFileName(a.id)}-`));
+        if (!ent) continue;
+        try { const d = await blobToDataUrl(await ent.blob(a.type)); if (d) fileData.set(a.id, d); } catch (err) {}
+      }
+    }
     let mode = 'replace';
     if (this.notes.length) {
       mode = await this.ask({
@@ -1554,6 +1798,79 @@ class MBNotes {
     this.toast(`Imported ${plural(fresh.length, 'note')} from Google Keep`);
   }
   persistQuiet() { return this.writeStore(); }
+
+  /* ---------- welcome screen (first visit; MB Suite v3.3 .mbw) ---------- */
+  bindWelcome() {
+    const $ = id => document.getElementById(id), W = $('welcome');
+    this.wStep = 0;
+    $('mbwNext').addEventListener('click', () => { if (this.wStep < this.wCount() - 1) this.welcomeStep(this.wStep + 1); else this.closeWelcome(true); });
+    $('mbwBack').addEventListener('click', () => this.welcomeStep(Math.max(0, this.wStep - 1)));
+    $('mbwSkip').addEventListener('click', () => this.closeWelcome(false));
+    $('mbwSync').addEventListener('click', () => this.openSync());
+    $('mbwImport').addEventListener('click', () => { this.closeWelcome(false); $('importFile').click(); });
+    $('mbwKeep').addEventListener('click', () => { this.closeWelcome(false); this.setView('settings'); $('keepFile').click(); });
+    $('mbwNote').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); this.closeWelcome(true); } });
+    W.addEventListener('click', e => { if (e.target.closest('#mbwIn')) this.openSync(); });
+    W.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); this.closeWelcome(false); return; }
+      if (e.key !== 'Tab') return;             // keep Tab inside the welcome card
+      const f = [...W.querySelectorAll('button, a[href], input')].filter(el => !el.disabled && el.offsetParent !== null);
+      if (!f.length) return;
+      const i = f.indexOf(document.activeElement);
+      if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+    });
+  }
+  wCount() { return document.querySelectorAll('#welcome .mbw-body').length; }
+  renderWelcomeAcct() {
+    const s = this.sync ? this.sync.status() : null, box = document.getElementById('mbwAcct');
+    if (!window.MBSync) { box.innerHTML = ''; return; }
+    const want = s && s.signedIn ? 'in' : 'out';
+    if (box.dataset.state === want) return;
+    box.dataset.state = want;
+    box.innerHTML = want === 'in' ? '<span class="mbw-signed">Signed in</span>' : '<button class="mbw-link acc" type="button" id="mbwIn">Sign in</button>';
+  }
+  welcomeStep(i) {
+    const W = document.getElementById('welcome'), n = this.wCount();
+    this.wStep = i;
+    W.querySelectorAll('.mbw-body').forEach(b => { b.hidden = +b.dataset.step !== i; });
+    W.querySelectorAll('.mbw-prog i').forEach((x, k) => x.classList.toggle('on', k <= i));
+    document.getElementById('mbwStep').textContent = `Step ${i + 1} of ${n}`;
+    document.getElementById('mbwBack').hidden = i === 0;
+    document.getElementById('mbwNext').innerHTML = (i === n - 1 ? 'Get started' : 'Next') + icon('next');
+    document.getElementById('mbwSync').hidden = !window.MBSync;
+    this.renderWelcomeAcct();
+    this.syncThemeSwitches();
+    const lbl = W.querySelector(`.mbw-body[data-step="${i}"] h2`);
+    if (lbl) { lbl.id = lbl.id || 'mbwTitle' + i; W.setAttribute('aria-labelledby', lbl.id); }
+  }
+  openWelcome() {
+    const W = document.getElementById('welcome');
+    this.welcomeFocus = document.activeElement;
+    document.querySelectorAll('.mb-side, .mb-main, #bnav, .skip').forEach(el => { el.inert = true; });
+    W.hidden = false;
+    this.welcomeStep(0);
+    document.getElementById('mbwNext').focus();
+  }
+  closeWelcome(finished) {
+    const W = document.getElementById('welcome');
+    if (W.hidden) return;
+    W.hidden = true;
+    document.querySelectorAll('.mb-side, .mb-main, #bnav, .skip').forEach(el => { el.inert = false; });
+    this.welcomePending = false;
+    this.lsSet(VISITED_KEY, 'true');
+    const input = document.getElementById('mbwNote'), text = finished ? input.value.trim() : '';
+    input.value = '';
+    if (text) {           // "Write your first note": saved like a note typed in the box at the top
+      const now = new Date().toISOString();
+      const note = normalizeNote({ id: uuid(), title: text.split('\n')[0].slice(0, 48), content: escapeHTML(text), color: 'bg-white', pinned: false,
+        isChecklist: false, checklistItems: [], attachments: [], tags: this.extractTags(text), archived: false, trashed: false, createdAt: now, updatedAt: now });
+      this.notes.unshift(note);
+      if (this.persist()) { this.render(); this.toast('Note saved'); } else this.notes.shift();
+    }
+    const main = document.getElementById('main');
+    if (main) main.focus({ preventScroll: true });
+  }
 
   /* ---------- dialogs + toasts ---------- */
   ask(o) {

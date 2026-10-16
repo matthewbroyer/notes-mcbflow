@@ -50,3 +50,5 @@
   .chip-f[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 }
 @media (max-width:767px){.phone-tools .searchbox{display:flex}.chiprow{margin-top:8px}}
+/* v1.5 · nav icons use the suite's 1.8 outline stroke (SUITE nav icons) */
+.side-nav .uic,.bnav .uic{stroke-width:1.8}
