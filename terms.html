@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-mb-app="notes">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -9,9 +9,10 @@
 <meta name="theme-color" content="#EAB308">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.ico" sizes="any">
+<script src="/mb-ui.js"></script><!-- applies the saved Light | Dark choice before first paint -->
 <style>
 :root{--font:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;--bg:#f3f4f6;--surface:#fff;--ink:#1b1f24;--ink-2:#48505c;--muted:#5f6773;--border:#dfe2e7;--accent:#A16207;--accent-hover:#854D0E;--r:6px;--on:#fff}
-@media (prefers-color-scheme:dark){:root{--bg:#121417;--surface:#1a1d21;--ink:#e8eaed;--ink-2:#b4bac3;--muted:#99a1ac;--border:#2c3036;--accent:#FACC15;--accent-hover:#FDE047;--on:#111}}
+
 *{box-sizing:border-box}
 body{margin:0;font:16px/1.6 var(--font);color:var(--ink);background:linear-gradient(170deg,color-mix(in srgb,var(--accent) 8%,var(--bg)) 0,var(--bg) 320px) no-repeat,var(--bg)}
 .bar{height:6px;background:linear-gradient(90deg,#EAB308,#FFD98A)}
@@ -29,6 +30,8 @@ code{font-size:.92em;background:color-mix(in srgb,var(--accent) 8%,transparent);
 .back{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;margin-top:24px;border-radius:var(--r);background:var(--accent);color:var(--on);text-decoration:none;font-weight:600}
 .back:hover{background:var(--accent-hover);color:var(--on)}
 footer{max-width:760px;margin:0 auto 32px;padding:0 16px;color:var(--muted);font-size:14px}
+
+:root[data-theme="dark"]{--bg:#121417;--surface:#1a1d21;--ink:#e8eaed;--ink-2:#b4bac3;--muted:#99a1ac;--border:#2c3036;--accent:#FACC15;--accent-hover:#FDE047;--on:#111}
 </style>
 </head>
 <body>

@@ -66,7 +66,8 @@ input[type=search]:focus,input[type=text]:focus,.field:focus{outline:none;border
 .view-head .view-actions{margin-left:auto;display:flex;gap:8px}
 .view-head .view-actions:empty{display:none}
 .phone-only{position:absolute!important;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.phone-tools{display:none}
+.phone-tools{display:block;max-width:640px;margin:0 auto 14px}
+.phone-tools .searchbox input{width:100%;height:var(--ctl);background:var(--surface)}
 
 /* ---- note paper colors (stored as Tailwind-style class names in note data; kept for compatibility) ---- */
 .note-c{--note-bg:var(--surface);--note-line:var(--border)}
@@ -193,13 +194,6 @@ input[type=search]:focus,input[type=text]:focus,.field:focus{outline:none;border
 :root[data-theme="dark"] .ulink{color:color-mix(in srgb,var(--info) 70%,#fff)}
 .ulink{color:var(--info);text-decoration:underline;text-underline-offset:2px}
 
-/* ---- empty states ---- */
-.empty{max-width:440px;margin:24px auto;padding:20px;text-align:center}
-.empty .cu-art{--cu-w:140px;margin-bottom:8px}
-.empty h2{margin:0 0 6px;font-size:16px;font-weight:650}
-.empty p{margin:0 0 14px;color:var(--ink-2)}
-.empty .row-actions{justify-content:center}
-
 /* ---- editor dialog ---- */
 dialog{color:var(--ink)}
 .editor-dlg{width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 32px);padding:0;border:1px solid var(--note-line);border-radius:var(--r-lg);background:var(--note-bg);
@@ -226,13 +220,6 @@ dialog{color:var(--ink)}
 .ask-dlg p{margin:0;color:var(--ink-2);white-space:pre-line}
 .ask-btns{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:18px}
 
-/* toasts */
-.toasts{position:fixed;left:50%;bottom:20px;z-index:80;display:flex;flex-direction:column;align-items:center;gap:8px;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 24px);pointer-events:none}
-.toast{display:flex;align-items:center;gap:12px;padding:10px 12px 10px 14px;border-radius:var(--r);background:var(--ink);color:var(--surface);box-shadow:var(--shadow-pop);font-size:13.5px;pointer-events:auto}
-.toast.err{background:var(--crit);color:#fff}
-.toast button{min-height:30px;padding:0 10px;border:0;border-radius:var(--r-sm);background:color-mix(in srgb,var(--surface) 18%,transparent);color:inherit;font-weight:650;cursor:pointer}
-@media (max-width:767px){.toasts{bottom:calc(68px + env(safe-area-inset-bottom))}}
-
 /* ---- settings (layout + look: .mb-set in mb-suite-topbar.css; these are Notes' own pieces inside it) ---- */
 .mb-set-card.mb-set-dm{padding:8px 16px}
 .mb-set-sub{margin:0 0 6px;font-size:14px;font-weight:600}
@@ -241,22 +228,10 @@ dialog{color:var(--ink)}
 .steps{margin:4px 0 10px;padding-left:20px;color:var(--ink-2);font-size:13.5px}
 .steps li{margin:3px 0}
 .check{display:flex;align-items:center;gap:8px;min-height:44px;font-size:13.5px}
-.tips{margin:0;display:grid;gap:2px;font-size:13.5px}
-.tips dt{font-weight:600;margin-top:6px}
-.tips dt:first-child{margin-top:0}
-.tips dd{margin:0;color:var(--ink-2)}
 .result{margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-left:3px solid var(--good);border-radius:var(--r-sm);background:var(--surface-2);font-size:13px}
 .result.warn{border-left-color:var(--warn)}
 .result ul{margin:6px 0 0;padding-left:18px}
 .mb-about .mb-about-links button{font:inherit}
-
-/* What's new dialog */
-.news-dlg{width:min(480px,calc(100vw - 24px))}
-.news-in{padding:18px 18px 16px;max-height:calc(100dvh - 48px);overflow-y:auto}
-.news-in h3{margin:0 0 4px;font-size:17px;font-weight:650}
-.news-in h4{margin:14px 0 4px;font-size:12px;font-weight:650;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
-.news-in ul{margin:0;padding-left:18px;color:var(--ink-2);font-size:13.5px}
-.news-in li{margin:3px 0}
 
 /* welcome: the look buttons put icon + label on one line */
 .mbw-look > span:last-child{display:inline-flex;align-items:center;gap:6px}
@@ -266,8 +241,6 @@ dialog{color:var(--ink)}
 /* ---- phones ---- */
 @media (max-width:767px){
   .phone-only{position:static!important;width:auto;height:auto;margin:0 0 4px;overflow:visible;clip:auto;white-space:normal}
-  .phone-tools{display:block;margin:0 0 12px}
-  .phone-tools .searchbox input{width:100%;height:var(--ctl);background:var(--surface)}
   .chiprow{display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:2px;scrollbar-width:none}
   .chiprow:empty{display:none}
   .chiprow::-webkit-scrollbar{display:none}
@@ -278,5 +251,5 @@ dialog{color:var(--ink)}
   .cap-bar .hint{display:none}
   .cap-bar>.btn,.dlg-bar>.btn{margin-left:auto}
 }
-@media print{.capture,.acts,.toasts,.page-bar,.empty .row-actions{display:none!important}.card-note{break-inside:avoid;box-shadow:none}}
+@media print{.capture,.acts,.page-bar,.mbu-toast,#empty .mbu-b{display:none!important}.card-note{break-inside:avoid;box-shadow:none}}
 .note-text img,.editor img{max-width:100%;height:auto;border-radius:var(--r-sm)}

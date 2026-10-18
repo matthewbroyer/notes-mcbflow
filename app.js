@@ -10,6 +10,9 @@
    'notes.sync' + 'notes.keepSignedIn' (mb-sync.js). IndexedDB 'notes.handles' keeps the "Save backup now" file handle (Chrome/Edge).
    Network: none, unless the person signs in to the optional sync (mb-sync.js). No inline handlers.
    v1.5 (MB Suite v3.3): welcome screen, account button, standard Data menu (JSON/CSV/ZIP), Settings page, MBFiles viewer.
+   v1.6: phone bottom bar Notes · Checklists · [Add] · Archive · More (Trash, Settings, What's new); Clear all data uses MBFiles.confirmClear.
+   v1.7 (suite round 2026-10-17b, mb-ui.js): More sheet, What's new, search, toasts, empty screens and the sample-data notice come
+   from MBUI; new Help view; sample notes only when picked in the welcome; Delete forever / Empty Trash delete at once with Undo.
    ===================================================================== */
 'use strict';
 
@@ -19,7 +22,7 @@ const VISITED_KEY = 'notes.hasVisited';
 const BACKUP_KEY = 'notes.lastBackup';
 const DRAFT_KEY = 'notes.draft';
 const MAX_FILE = 4 * 1024 * 1024;
-const APP_KEY = 'notes';                      // file names: notes-backup-YYYY-MM-DD.json / .zip, notes-all-YYYY-MM-DD.csv
+const APP_KEY = 'notes';                      // file names (MBUI.fileName): notes-backup-YYYY-MM-DD.json / .zip, notes-notes-YYYY-MM-DD.csv
 const isSample = n => /^sample-/.test(n.id) && n.updatedAt === n.createdAt;   // untouched sample notes aren't synced
 
 const COLORS = [
@@ -30,7 +33,42 @@ const COLORS = [
   ['bg-purple-100', 'note-purple', 'Purple'],
   ['bg-rose-100', 'note-rose', 'Rose']
 ];
-const VIEW_NAMES = { all: 'All notes', pinned: 'Pinned', checklist: 'Checklists', archive: 'Archive', trash: 'Trash', settings: 'Settings' };
+const VIEW_NAMES = { all: 'All notes', pinned: 'Pinned', checklist: 'Checklists', archive: 'Archive', trash: 'Trash', settings: 'Settings', help: 'Help' };
+const PAGE_VIEWS = new Set(['settings', 'help']);           // views that aren't a list of notes
+/* What's new (MBUI.whatsNew): newest first; the full history is RELEASE_NOTES.md */
+const RELEASES = [
+  { version: '1.7', date: '2026-10-17', items: [
+    'New Help page: getting started, answers grouped by topic, installing the app and your data. The tips that were in Settings live there now.',
+    'Search (top bar, / or Ctrl+K) now looks through every note, Archive and Trash included, and opens the one you pick. The box above your notes still filters the list you’re looking at.',
+    'Notes opens in light mode until you pick dark; it no longer follows your device’s setting.',
+    'New visitors choose “Start empty” or “Start with sample data” on the welcome screen. Remove sample data at the top of All notes clears the samples in one click, with Undo.',
+    'Delete forever and Empty Trash happen right away, with an Undo button instead of a question first.',
+    'The More menu on phones, What’s new, messages and empty pages look and work the same as in the other mcbflow.com apps.',
+    'Spreadsheet exports are now named notes-notes-<date>.csv, and the Install section reads the same in every app.'
+  ] },
+  { version: '1.6', date: '2026-10-17', items: [
+    'New bottom bar on phones: Notes, Checklists, a big + button for a new note, Archive and More. Trash, Settings and What’s new are under More.',
+    'Clear all data now asks you to type DELETE, the same in every mcbflow.com app, and offers to save a backup first.',
+    'Account pop-up spacing fixed.',
+    'The welcome banner art is no longer cut off on phones.',
+    'Very long note titles, tags or words no longer make the page scroll sideways on phones.'
+  ] },
+  { version: '1.5', date: '2026-10-16', items: [
+    'A new Settings page, laid out the same way in every mcbflow.com app.',
+    'An account button in the top bar, and “Keep me signed in on this device” for shared computers.',
+    'A short welcome screen on your first visit.',
+    'A clearer Data menu: Save backup now (Ctrl+S), and Export All as JSON, CSV or ZIP. The ZIP holds your backup, a spreadsheet and your attachments.',
+    'Pictures and attached files open right in the app instead of downloading.',
+    'Pick a profile picture and screen name for your mcbflow.com account (account button → Edit profile); every app shows the same one.',
+    'A greeting above All notes (“Good morning”, with your name when you’re signed in).',
+    'A proper gear icon for Settings, and a new name style: Notes ∙ mcbflow.com.'
+  ] },
+  { version: '1.4', date: '2026-10-15', items: [
+    'Optional free mcbflow.com account to sync notes across your devices.',
+    'Attachments live in the browser’s database, so they no longer eat into the note space.'
+  ] }
+];
+const NAV_IC = id => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#i-${id}"/></svg>`;
 
 /* ---------- safe HTML ---------- */
 const ALLOWED = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'S', 'STRIKE', 'DEL', 'BR', 'DIV', 'P', 'SPAN', 'UL', 'OL', 'LI', 'A',
@@ -96,7 +134,6 @@ function colorToDark(color) { const c = COLORS.find(x => x[0] === color); return
 function isISO(s) { return typeof s === 'string' && !isNaN(new Date(s).getTime()); }
 function icon(id, cls) { return `<svg class="uic${cls ? ' ' + cls : ''}" aria-hidden="true" focusable="false"><use href="#i-${id}"/></svg>`; }
 function plural(n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); }
-function today() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
 function localStamp(iso) {          // "2026-10-16 14:05" for spreadsheets
   const d = new Date(iso); if (isNaN(d)) return '';
   const p = n => String(n).padStart(2, '0');
@@ -234,10 +271,9 @@ class MBNotes {
     this.buildDataLists();
     this.bindEvents();
     this.bindWelcome();
-    // First visit: sample notes + the welcome screen. 'notes.hasVisited' is set when the welcome is finished or skipped
-    // (a reload part-way through shows it again; the samples are only ever added once, to an empty list).
+    // First visit: the welcome screen. 'notes.hasVisited' is set when the welcome is finished or skipped (a reload part-way
+    // through shows it again). Sample notes are added only when the person picks "Start with sample data" there (v1.7).
     const hasVisited = this.lsGet(VISITED_KEY);
-    if (!hasVisited && this.notes.length === 0) this.seedDemoNotes(true);
     if (!hasVisited) {
       const signedIn = !!(window.MBSync && MBSync.hasSavedSignIn && MBSync.hasSavedSignIn());
       if (signedIn || this.notes.some(n => !isSample(n))) this.lsSet(VISITED_KEY, 'true');
@@ -245,12 +281,14 @@ class MBNotes {
     }
     if (window.MBSync && MBSync.greeting) document.getElementById('greet').textContent = MBSync.greeting('');   // sync.greet() takes over once sync starts
     if (!window.MBSync) { document.getElementById('acctBtn').hidden = true; document.getElementById('greet').hidden = true; document.getElementById('syncCard').innerHTML = '<p class="muted" style="margin:0">Sync isn’t available in this browser.</p>'; }
+    this.setupSearch();
     this.restoreDraft();
     this.setView('all', { silent: true });
     this.updateDataUI();
     if (canSaveFile() && window.indexedDB) HandleDB.get('json').then(h => { if (h && h.kind === 'file') { this.backupHandle = h; this.updateDataUI(); } }).catch(() => {});
     if (this.welcomePending) this.openWelcome();
     if (window.MBInstall) MBInstall.registerSW('sw.js');
+    ['beforeinstallprompt', 'appinstalled'].forEach(ev => window.addEventListener(ev, () => setTimeout(() => this.renderInstall(), 0)));
     this.ready = this.loadFiles().catch(() => {}).then(() => {
       this.filesReady = true;
       this.render(); if (this.filter === 'settings') this.renderSettings();
@@ -425,7 +463,7 @@ class MBNotes {
     return false;
   }
 
-  seedDemoNotes(firstRun) {
+  seedDemoNotes() {
     const now = Date.now();
     const demos = [
       {
@@ -451,7 +489,20 @@ class MBNotes {
     // Sample notes are only ever ADDED. They never replace what's already here.
     this.notes = [...demos, ...this.notes];
     this.persist();
-    if (!firstRun) { this.render(); this.toast('Added 3 sample notes. Delete them whenever you like.'); }
+    this.render();
+  }
+  /* "Remove sample data" (MBUI.sample notice at the top of All notes): removes the sample notes nobody has changed */
+  removeSamples() {
+    const before = this.notes.slice();
+    const gone = before.filter(isSample);
+    if (!gone.length) return;
+    this.notes = before.filter(n => !isSample(n));
+    this.persist(); this.render();
+    this.toast('Sample data removed', { action: { label: 'Undo', run: () => {
+      const keep = new Set(this.notes.map(n => n.id));
+      this.notes = before.filter(n => keep.has(n.id) || isSample(n)).concat(this.notes.filter(n => !before.includes(n)));
+      this.persist(); this.render();
+    } } });
   }
 
   /* ---------- theme ---------- */
@@ -477,9 +528,9 @@ class MBNotes {
     document.getElementById('pageTitle').textContent = name;
     if (window.MBTitle) MBTitle.set(name);
     const isSettings = view === 'settings';
-    document.getElementById('notesView').hidden = isSettings;
+    document.getElementById('notesView').hidden = PAGE_VIEWS.has(view);
     document.getElementById('settingsView').hidden = !isSettings;
-    document.querySelectorAll('[data-notes-only]').forEach(el => { el.style.visibility = isSettings ? 'hidden' : ''; });
+    document.getElementById('helpView').hidden = view !== 'help';
     this.render();
     if (isSettings) this.renderSettings();
     if (!opts.silent) {
@@ -488,11 +539,23 @@ class MBNotes {
       if (main && opts.focusMain) main.focus({ preventScroll: true });
     }
   }
+  /* phones: the bottom bar's More tab (MBUI.sheet). Order: Settings, the other views in sidebar order, Help, What's new. */
+  openMore() {
+    const cur = this.filter, go = v => () => this.setView(v, { focusMain: true });
+    const item = (v, icon) => ({ label: VIEW_NAMES[v], icon: NAV_IC(icon), current: cur === v, onClick: go(v) });
+    MBUI.sheet({ title: 'More', opener: document.getElementById('bnMore'), items: [
+      item('settings', 'gear'), item('pinned', 'pin'), item('trash', 'trash'), item('help', 'help'),
+      { label: 'What’s new', sub: 'Version 1.7', icon: NAV_IC('gift'), onClick: () => this.whatsNew() }
+    ] });
+  }
+  whatsNew() { MBUI.whatsNew({ app: 'Notes', releases: RELEASES }); }
   markNav() {
     const cur = this.filter;
     document.querySelectorAll('#sideNav [data-view], #bnav [data-view], .side-end [data-view]').forEach(b => {
       if (b.dataset.view === cur) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
     });
+    const more = document.getElementById('bnMore');      // phones: More shows as current while a view inside it is open
+    if (more) { if (['settings', 'pinned', 'trash', 'help'].includes(cur)) more.setAttribute('aria-current', 'page'); else more.removeAttribute('aria-current'); }
     document.querySelectorAll('#tagNav [data-tag]').forEach(b => {
       if (cur === 'tag' && b.dataset.tag === this.tagFilter) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
     });
@@ -519,6 +582,9 @@ class MBNotes {
   bindEvents() {
     const $ = id => document.getElementById(id);
 
+    // phones: More sheet opened from the bottom bar
+    $('bnMore').addEventListener('click', () => this.openMore());
+
     // navigation
     document.addEventListener('click', e => {
       const nav = e.target.closest('[data-view]');
@@ -541,13 +607,11 @@ class MBNotes {
         else if (a === 'export-zip') this.exportZIP();
         else if (a === 'import') $('importFile').click();
         else if (a === 'keep') { if (this.filter !== 'settings') this.setView('settings'); $('keepFile').click(); }
-        else if (a === 'seed') this.seedDemoNotes(false);
         else if (a === 'clear-search') this.setQuery('');
         else if (a === 'empty-trash') this.emptyTrash();
         else if (a === 'delete-all') this.deleteAll();
         else if (a === 'sync') this.openSync();
-        else if (a === 'whats-new') { const d = $('newsDlg'); if (!d.open) d.showModal(); }
-        else if (a === 'close-news') $('newsDlg').close();
+        else if (a === 'whats-new') this.whatsNew();
         else if (a === 'share-stats') this.shareStats();
         else if (a === 'share-checklist') this.shareChecklist(this.editingId);
         else if (a === 'view-imported') this.setView('all');
@@ -558,8 +622,9 @@ class MBNotes {
     // brand + theme
     $('themeBtn').addEventListener('click', () => this.setTheme(this.isDark() ? 'light' : 'dark'));
     document.addEventListener('click', e => { const b = e.target.closest('[data-theme-set]'); if (b) this.setTheme(b.dataset.themeSet); });
-    // phones: the bar's search icon jumps to the search field under the banner
-    $('searchTb').addEventListener('click', () => { const f = $('searchPhone'); f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); });
+    // top bar Search (MBUI search overlay; "/" and Ctrl/Cmd+K are bound by mb-ui.js)
+    $('searchBtn').addEventListener('click', () => MBUI.search.open('', $('searchBtn')));
+    $('installBtn').addEventListener('click', () => { if (window.MBInstall) MBInstall.install().then(() => this.renderInstall()); });
 
     // Data menu
     $('dataBtn').addEventListener('click', e => { e.stopPropagation(); this.toggleMenu(); });
@@ -571,14 +636,12 @@ class MBNotes {
       if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
     });
 
-    // search (page bar + phone field share one query)
+    // list filter above the notes (narrows the view you're in)
     let t;
-    ['search', 'searchPhone'].forEach(id => {
-      $(id).addEventListener('input', e => {
-        clearTimeout(t);
-        const v = e.target.value;
-        t = setTimeout(() => this.setQuery(v, id), 150);
-      });
+    $('searchPhone').addEventListener('input', e => {
+      clearTimeout(t);
+      const v = e.target.value;
+      t = setTimeout(() => this.setQuery(v, 'searchPhone'), 150);
     });
 
     // capture
@@ -590,7 +653,7 @@ class MBNotes {
     document.addEventListener('click', e => {
       if (!this.isCaptureOpen() || this.editingId) return;
       const t2 = e.target;
-      if (t2.closest('#capture') || t2.closest('dialog') || t2.closest('.toasts') || t2.closest('[data-action="new"]')) return;
+      if (t2.closest('#capture') || t2.closest('dialog') || t2.closest('.mbu-toast') || t2.closest('[data-action="new"]')) return;
       setTimeout(() => { if (this.isCaptureOpen() && !this.editingId) this.closeCapture(); }, 0);
     }, true);
     const saveDraft = () => this.saveDraft();
@@ -701,13 +764,6 @@ class MBNotes {
     // keyboard
     document.addEventListener('keydown', e => {
       if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); this.saveBackupNow(); return; }
-      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        const t = e.target, tag = (t && t.tagName || '').toLowerCase();
-        if (!(tag === 'input' || tag === 'textarea' || tag === 'select' || (t && t.isContentEditable) || document.querySelector('dialog[open]'))) {
-          const box = [$('search'), $('searchPhone')].find(el => el && el.offsetParent);
-          if (box) { e.preventDefault(); box.focus(); return; }
-        }
-      }
       if (e.key === 'Escape') {
         if (!$('dataMenu').hidden) { this.closeMenu(true); return; }
         if (!this.editingId && !$('ask').open && this.isCaptureOpen()) this.closeCapture();
@@ -733,8 +789,47 @@ class MBNotes {
   }
   setQuery(v, fromId) {
     this.query = String(v || '').trim().toLowerCase();
-    ['search', 'searchPhone'].forEach(id => { if (id !== fromId) document.getElementById(id).value = v; });
+    if (fromId !== 'searchPhone') document.getElementById('searchPhone').value = v;
     this.render();
+  }
+
+  /* ---------- search (MBUI.search): notes first (every note, Archive and Trash too), then tags and pages ---------- */
+  setupSearch() {
+    if (!window.MBUI) return;
+    MBUI.search.setup({ placeholder: 'Search notes…', run: q => this.searchRun(q) });
+  }
+  searchRun(q) {
+    const s = q.trim().toLowerCase(), bare = s.replace(/^#/, '');
+    if (!s) return [];
+    const hit = (txt) => String(txt || '').toLowerCase().includes(s);
+    const out = [];
+    const notes = this.notes.slice().sort((a, b) => (a.trashed - b.trashed) || (a.archived - b.archived) || new Date(b.updatedAt) - new Date(a.updatedAt));
+    for (const n of notes) {
+      const text = htmlToText(n.content);
+      const item = (n.checklistItems || []).find(i => hit(i.text));
+      const inTitle = hit(n.title), inText = hit(text), inTag = (n.tags || []).some(t => t.includes(bare));
+      if (!(inTitle || inText || item || inTag)) continue;
+      let snip = '';
+      if (!inTitle && inText) { const i = text.toLowerCase().indexOf(s); snip = (i > 30 ? '…' : '') + text.slice(Math.max(0, i - 30), i + 60).replace(/\s+/g, ' ').trim(); }
+      else if (!inTitle && item) snip = item.text;
+      else snip = text.split('\n')[0].slice(0, 80) || (n.checklistItems || []).map(i => i.text).join(', ').slice(0, 80);
+      const where = n.trashed ? 'In Trash' : n.archived ? 'Archived' : n.pinned ? 'Pinned' : '';
+      out.push({ title: n.title, sub: [where, snip].filter(Boolean).join(' · '), tag: n.isChecklist ? 'Checklist' : 'Note', onSelect: () => this.openFromSearch(n.id) });
+    }
+    const tags = new Set(); this.notes.forEach(n => { if (!n.trashed) (n.tags || []).forEach(t => tags.add(t)); });
+    [...tags].filter(t => t.includes(bare)).sort().forEach(t => out.push({ title: '#' + t, sub: plural(this.notes.filter(n => !n.trashed && n.tags.includes(t)).length, 'note'), tag: 'Tag', onSelect: () => this.setView('tag', { tag: t, focusMain: true }) }));
+    const pages = [['all', 'All notes', 'notes home list'], ['pinned', 'Pinned', 'pinned top'], ['checklist', 'Checklists', 'lists to do tick'], ['archive', 'Archive', 'archived old'], ['trash', 'Trash', 'deleted bin restore empty'],
+      ['settings', 'Settings', 'theme dark light account sync backup export import google keep install about'], ['help', 'Help', 'faq questions how getting started shortcuts privacy']];
+    pages.filter(([, l, kw]) => (l + ' ' + kw).toLowerCase().includes(s)).forEach(([v, l]) => out.push({ title: l, sub: v === 'help' || v === 'settings' ? '' : 'Show ' + l.toLowerCase(), tag: 'Page', onSelect: () => this.setView(v, { focusMain: true }) }));
+    return out;
+  }
+  openFromSearch(id) {
+    const n = this.notes.find(x => x.id === id);
+    if (!n) return;
+    const v = n.trashed ? 'trash' : n.archived ? 'archive' : 'all';
+    if (this.query) this.setQuery('');
+    if (this.filter !== v) this.setView(v);
+    this.openNote(id);
   }
 
   /* ---------- editing helpers ---------- */
@@ -1236,33 +1331,40 @@ class MBNotes {
     if (!this.persist()) { note[field] = !note[field]; return; }
     this.render();
     const undo = { label: 'Undo', run: () => { note[field] = !note[field]; this.persist(); this.render(); } };
-    if (field === 'trashed') this.toast(note.trashed ? 'Moved to Trash' : 'Restored', { action: undo });
-    else if (field === 'archived') this.toast(note.archived ? 'Archived' : 'Moved back to notes', { action: undo });
+    if (field === 'trashed') this.toast(note.trashed ? 'Note moved to Trash' : 'Note restored', { action: undo });
+    else if (field === 'archived') this.toast(note.archived ? 'Note archived' : 'Note moved back to notes', { action: undo });
   }
-  async deletePermanent(id) {
-    const note = this.notes.find(n => n.id === id);
-    if (!note) return;
-    const ok = await this.ask({ title: 'Delete this note for good?', text: `"${note.title}" will be removed from this browser. This can't be undone.`, confirm: 'Delete forever', danger: true });
-    if (!ok) return;
-    this.notes = this.notes.filter(n => n.id !== id);
+  /* Delete forever / Empty Trash: deleted at once, with Undo (suite standard). Attachment files stay in the browser database until the
+     next page load tidies up files no note uses, so Undo brings them back too. */
+  deletePermanent(id) {
+    const i = this.notes.findIndex(n => n.id === id);
+    if (i < 0) return;
+    const [note] = this.notes.splice(i, 1);
     this.persist();
     this.render();
-    this.toast('Note deleted');
+    this.toast('Note deleted', { action: { label: 'Undo', run: () => { if (!this.notes.some(n => n.id === note.id)) { this.notes.splice(Math.min(i, this.notes.length), 0, note); this.persist(); this.render(); } } } });
   }
-  async emptyTrash() {
-    const n = this.notes.filter(x => x.trashed).length;
-    if (!n) return;
-    const ok = await this.ask({ title: 'Empty the Trash?', text: `${plural(n, 'note')} will be deleted for good. This can't be undone.`, confirm: 'Empty Trash', danger: true });
-    if (!ok) return;
-    this.notes = this.notes.filter(x => !x.trashed);
+  emptyTrash() {
+    const before = this.notes.slice(), gone = before.filter(x => x.trashed);
+    if (!gone.length) return;
+    this.notes = before.filter(x => !x.trashed);
     this.persist(); this.render();
-    this.toast('Trash emptied');
+    this.toast(`${plural(gone.length, 'note')} deleted`, { action: { label: 'Undo', run: () => {
+      const ids = new Set(this.notes.map(n => n.id));
+      this.notes = this.notes.concat(gone.filter(n => !ids.has(n.id)));
+      this.persist(); this.render();
+    } } });
   }
   async deleteAll() {
     const n = this.notes.length;
     if (!n) { this.toast('There are no notes to delete.'); return; }
     const synced = this.sync && this.sync.status().signedIn;
-    const ok = await this.ask({ title: 'Delete all notes?', text: `All ${plural(n, 'note')}, including Archive and Trash, will be removed from this browser.${synced ? ' You’re signed in to sync, so they’re also deleted from your account and your other devices.' : ''} Export a backup first if you might want them back.`, confirm: 'Delete all notes', danger: true });
+    const ok = await MBFiles.confirmClear({
+      what: 'all your notes and checklists, including Archive, Trash and attachments,',
+      synced: synced ? 'You’re signed in, so the synced copy on your account is deleted too.' : '',
+      note: '',
+      onBackup: async () => { const t = this.lastBackupMs(); await this.saveBackupNow(); if (this.lastBackupMs() === t) throw new Error('Backup not saved'); }   // a cancelled save keeps the button available
+    });
     if (!ok) return;
     this.notes = [];
     this.persist(); this.lsDel(DRAFT_KEY);
@@ -1404,7 +1506,7 @@ class MBNotes {
     tags.forEach(([tag]) => chips.push(`<button type="button" class="chip-f" data-chip="tag:${escapeHTML(tag)}" aria-pressed="${this.filter === 'tag' && this.tagFilter === tag}">#${escapeHTML(tag)}</button>`));
     document.getElementById('phoneChips').innerHTML = chips.join('');
     this.markNav();
-    if (this.filter === 'settings') return;
+    if (PAGE_VIEWS.has(this.filter)) return;
 
     // header for this view
     const isHome = this.filter === 'all';
@@ -1412,10 +1514,12 @@ class MBNotes {
     document.getElementById('capture').hidden = !isHome;
     const head = document.getElementById('viewHead');
     head.hidden = isHome;
-    if (isHome) {
-      document.getElementById('bannerSub').textContent = c.all
-        ? [plural(c.all, 'note'), c.pinned ? c.pinned + ' pinned' : '', c.checklist ? plural(c.checklist, 'checklist') : ''].filter(Boolean).join(' · ')
-        : 'Your notes stay in this browser. No account needed.';
+    const smp = document.getElementById('sampleNote'), hasSamples = isHome && this.notes.some(isSample);
+    if (hasSamples && !smp.firstChild) MBUI.sample(smp, { onRemove: () => this.removeSamples() });
+    else if (!hasSamples) smp.innerHTML = '';
+    if (isHome) {     // welcome banner: date line · one short detail
+      document.getElementById('bannerSub').textContent = MBUI.dateLine() + ' · ' +
+        (c.all ? plural(c.all, 'note') + (c.pinned ? ', ' + c.pinned + ' pinned' : '') : 'Saved on this device');
     } else {
       const name = this.filter === 'tag' ? '#' + this.tagFilter : VIEW_NAMES[this.filter];
       document.getElementById('viewHeading').textContent = name;
@@ -1451,7 +1555,7 @@ class MBNotes {
     const empty = document.getElementById('empty');
     if (list.length === 0) {
       container.innerHTML = '';
-      empty.innerHTML = this.emptyHTML(c);
+      MBUI.empty(empty, this.emptyState());
       empty.hidden = false;
       return;
     }
@@ -1467,31 +1571,17 @@ class MBNotes {
       container.innerHTML = (this.query ? `<p class="section-label">${plural(list.length, 'result')}</p>` : '') + `<div class="masonry">${list.map(n => this.renderNoteCard(n)).join('')}</div>`;
     }
   }
-  emptyHTML(c) {
-    const art = document.getElementById('emptyArt').innerHTML.replace('class="cu-art inline"', 'class="cu-art inline sm"');
-    const q = escapeHTML(this.query);
-    let h, p, btns = '';
-    if (this.query) {
-      h = `No notes match “${q}”`; p = this.filter === 'all' ? 'Search looks at titles, text, checklist items and tags.' : `Only ${VIEW_NAMES[this.filter] || 'these notes'} are searched here.`;
-      btns = `<button type="button" class="btn" data-action="clear-search">Clear search</button>`;
-    } else if (this.filter === 'all' && this.notes.length === 0) {
-      h = 'No notes yet'; p = 'Write your first note in the box above. It saves to this browser when you close it.';
-      btns = `<button type="button" class="btn" data-action="seed">Add sample notes</button><button type="button" class="btn" data-action="keep">Import from Google Keep</button>`;
-    } else if (this.filter === 'all') {
-      h = 'Nothing here right now'; p = `All your notes are archived or in the Trash. Write a new one above.`;
-    } else if (this.filter === 'pinned') {
-      h = 'No pinned notes'; p = 'Pin a note to keep it at the top of All notes. Use the pin on a note card or in the editor.';
-    } else if (this.filter === 'checklist') {
-      h = 'No checklists yet'; p = 'Make a list you can tick off. It shows a progress bar on its card.';
-      btns = `<button type="button" class="btn primary" data-action="new-checklist">${icon('plus')}New checklist</button>`;
-    } else if (this.filter === 'archive') {
-      h = 'Archive is empty'; p = 'Archive notes you\'re done with but want to keep. They stay searchable here.';
-    } else if (this.filter === 'trash') {
-      h = 'Trash is empty'; p = 'Notes you delete wait here until you delete them for good.';
-    } else {
-      h = `No notes tagged #${escapeHTML(this.tagFilter)}`; p = 'Tags come from #words in your notes.';
-    }
-    return `${art}<h2>${h}</h2><p>${p}</p>${btns ? `<div class="row-actions">${btns}</div>` : ''}`;
+  /* empty screens (MBUI.empty): what's empty, why it matters, the one sensible next step */
+  emptyState() {
+    if (this.query) return { title: `No notes match “${this.query}”`, text: this.filter === 'all' ? 'The filter looks at titles, text, checklist items and tags.' : `Only ${VIEW_NAMES[this.filter] || 'these notes'} are filtered here. Search in the top bar looks through every note.`, action: { label: 'Clear filter', fn: () => this.setQuery('') } };
+    const f = this.filter;
+    if (f === 'all' && this.notes.length === 0) return { title: 'No notes yet', text: 'Write down anything you want to keep; it saves in this browser.', action: { label: 'Add note', fn: () => this.newNote(false) } };
+    if (f === 'all') return { title: 'Nothing here right now', text: 'All your notes are archived or in the Trash.', action: { label: 'Add note', fn: () => this.newNote(false) } };
+    if (f === 'pinned') return { title: 'No pinned notes yet', text: 'Pin a note to keep it at the top of All notes.' };
+    if (f === 'checklist') return { title: 'No checklists yet', text: 'Make a list you can tick off; its card shows how much is done.', action: { label: 'Add checklist', fn: () => this.newNote(true) } };
+    if (f === 'archive') return { title: 'No archived notes yet', text: 'Archive notes you’re done with; they stay searchable here.' };
+    if (f === 'trash') return { title: 'No notes in the Trash', text: 'Notes you delete wait here until you delete them for good.' };
+    return { title: `No notes tagged #${this.tagFilter}`, text: 'Tags come from #words in your notes.' };
   }
   renderSettings() {
     const c = this.counts();
@@ -1507,9 +1597,17 @@ class MBNotes {
       ? `About ${size(chars)} of notes in this browser${fileBytes ? `, plus ${size(fileBytes)} of attachments stored separately` : ''}.`
       : `About ${size(chars)} of notes in this browser` + (withFiles ? `, mostly attachments on ${plural(withFiles, 'note')}` : '') + '. Browsers usually allow around 5 MB per site.';
     this.updateDataUI();
-    if (window.MBInstall) MBInstall.render();
-    const box = document.querySelector('[data-mb-install]');
-    document.getElementById('installFallback').hidden = !!(window.MBInstall && box && !box.hidden);
+    this.renderInstall();
+  }
+  /* Settings → Install (same words in every app): the Install button only when the browser offers it */
+  renderInstall() {
+    const how = document.getElementById('installHow'), btn = document.getElementById('installBtn');
+    if (!how || !btn) return;
+    const I = window.MBInstall, ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const installed = !!(I && I.isInstalled()), can = !!(I && I.canInstall());
+    btn.hidden = installed || !can;
+    how.textContent = installed ? 'Installed on this device.' : can ? '' : ios ? 'iPhone/iPad: tap Share, then Add to Home Screen.' : 'Use your browser’s menu: Install app / Add to Home screen.';
+    how.hidden = !how.textContent;
   }
 
   /* ---------- share cards (MBShare) ---------- */
@@ -1528,7 +1626,7 @@ class MBNotes {
       sub: `${total} of ${total} items ticked off`,
       stats: [{ label: 'Items done', value: String(total) }, { label: 'Finished', value: new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) }],
       art: this.artSVG(),
-      fileName: 'notes-checklist-done.png',
+      fileName: MBUI.fileName(APP_KEY, 'checklist-done', 'png'),
       date: this.monthYear(),
       options: [{ id: 'title', label: 'Show the list\'s title', value: false }],
       build: o => ({ headline: o.title ? note.title : 'Checklist complete' })
@@ -1547,7 +1645,7 @@ class MBNotes {
       sub: this.sync && this.sync.status().signedIn ? 'No ads, no tracking. Just a notes app that stays out of the way.' : 'No account, no cloud. Just a notes app that stays out of the way.',
       stats: [{ label: 'Notes', value: String(kept) }, { label: 'Lists finished', value: String(doneLists) }, { label: 'Tags', value: String(tags.size) }],
       art: this.artSVG(),
-      fileName: 'notes-milestone.png',
+      fileName: MBUI.fileName(APP_KEY, 'milestone', 'png'),
       date: this.monthYear()
     });
   }
@@ -1558,13 +1656,13 @@ class MBNotes {
     return JSON.stringify(this.notes, null, 2);
   }
   exportJSON() {
-    const data = this.backupText();
+    const data = this.backupText(), name = MBUI.fileName(APP_KEY, 'backup', 'json');
     const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
-    this.download(url, `${APP_KEY}-backup-${today()}.json`);
+    this.download(url, name);
     setTimeout(() => URL.revokeObjectURL(url), 30000);
     this.markBackedUp();
     if (this.filter === 'settings') this.renderSettings();
-    this.toast(`Backup downloaded (${plural(this.notes.length, 'note')})`);
+    this.toast(`Backup downloaded · ${name}`);
   }
   /* Save backup now (Ctrl+S): Chrome/Edge ask once where to keep the file, then overwrite it in one click.
      Other browsers download a dated backup, exactly like Export All (JSON). */
@@ -1579,7 +1677,7 @@ class MBNotes {
         let ok = false;
         try { const o = { mode: 'readwrite' }; ok = (await h.queryPermission(o)) === 'granted' || (await h.requestPermission(o)) === 'granted'; } catch (e) {}
         if (ok) {
-          try { await write(h); this.markBackedUp(); this.toast(`Backed up ${plural(this.notes.length, 'note')} to ${h.name}`); return; }
+          try { await write(h); this.markBackedUp(); this.toast(`Backup saved · ${h.name}`); return; }
           catch (e) { this.toast(`Couldn’t update ${h.name} (it may have moved). Choose where to save it.`, { ms: 6000 }); }
         }
       }
@@ -1591,7 +1689,7 @@ class MBNotes {
       this.backupHandle = nh;
       HandleDB.set('json', nh).catch(() => {});
       this.markBackedUp();
-      this.toast(`Saved ${nh.name}. Save backup now (Ctrl+S) keeps it up to date.`, { ms: 5000 });
+      this.toast(`Backup saved · ${nh.name}. Save backup now (Ctrl+S) keeps it up to date.`, { ms: 5000 });
     } finally {
       this.savingBackup = false;
       this.updateDataUI();
@@ -1618,8 +1716,9 @@ class MBNotes {
   exportCSV() {
     if (!window.MBFiles) return;
     if (this.editingId) this.autoSaveEdit();
-    MBFiles.download(new Blob([this.csvText()], { type: 'text/csv' }), `${APP_KEY}-all-${today()}.csv`);
-    this.toast(`Spreadsheet downloaded (${plural(this.notes.length, 'note')})`);
+    const name = MBUI.fileName(APP_KEY, 'notes', 'csv');
+    MBFiles.download(new Blob([this.csvText()], { type: 'text/csv' }), name);
+    this.toast(`Spreadsheet downloaded · ${name}`);
   }
   async exportZIP() {
     if (!window.MBFiles) return;
@@ -1640,12 +1739,13 @@ class MBNotes {
       `files/             The ${plural(files, 'attached file')} as normal files (named <attachment id>-<file name>).` + (away ? ` ${plural(away, 'attachment')} added on another device ${away === 1 ? 'isn’t' : 'aren’t'} included.` : ''),
       '', 'Everything here was made on your device. Nothing was uploaded.', ''
     ].join('\r\n') });
+    const name = MBUI.fileName(APP_KEY, 'backup', 'zip');
     try {
       const blob = await MBFiles.zip(entries);
-      MBFiles.download(blob, `${APP_KEY}-backup-${today()}.zip`);
+      MBFiles.download(blob, name);
     } catch (e) { this.toast('Couldn’t make the .zip in this browser. Use Export All (JSON) instead.', { error: true, ms: 7000 }); return; }
     this.markBackedUp();
-    this.toast(`ZIP downloaded (${plural(this.notes.length, 'note')}, ${plural(files, 'file')})`);
+    this.toast(`ZIP downloaded · ${name}`);
   }
   async importJSON(e) {
     const file = e.target.files[0];
@@ -1810,6 +1910,7 @@ class MBNotes {
     $('mbwImport').addEventListener('click', () => { this.closeWelcome(false); $('importFile').click(); });
     $('mbwKeep').addEventListener('click', () => { this.closeWelcome(false); this.setView('settings'); $('keepFile').click(); });
     $('mbwNote').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); this.closeWelcome(true); } });
+    W.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', () => W.querySelectorAll('[data-start]').forEach(x => x.setAttribute('aria-pressed', String(x === b)))));
     W.addEventListener('click', e => { if (e.target.closest('#mbwIn')) this.openSync(); });
     W.addEventListener('keydown', e => {
       if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); this.closeWelcome(false); return; }
@@ -1859,6 +1960,9 @@ class MBNotes {
     document.querySelectorAll('.mb-side, .mb-main, #bnav, .skip').forEach(el => { el.inert = false; });
     this.welcomePending = false;
     this.lsSet(VISITED_KEY, 'true');
+    // "Start with sample data" (default: Start empty; Skip starts empty). Samples are only ever added to an empty list.
+    const pick = W.querySelector('[data-start][aria-pressed="true"]');
+    if (finished && pick && pick.dataset.start === 'sample' && !this.notes.some(n => /^sample-/.test(n.id))) this.seedDemoNotes();
     const input = document.getElementById('mbwNote'), text = finished ? input.value.trim() : '';
     input.value = '';
     if (text) {           // "Write your first note": saved like a note typed in the box at the top
@@ -1889,19 +1993,10 @@ class MBNotes {
       box.querySelector('button').focus();      // safest choice gets focus
     });
   }
+  /* every transient message goes through MBUI.toast (plain text; { action: { label, run } } becomes the toast's button) */
   toast(msg, o = {}) {
-    const box = document.getElementById('toasts');
-    const t = document.createElement('div');
-    t.className = 'toast' + (o.error ? ' err' : '');
-    const span = document.createElement('span'); span.textContent = msg; t.appendChild(span);
-    if (o.action) {
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = o.action.label;
-      b.addEventListener('click', () => { o.action.run(); t.remove(); });
-      t.appendChild(b);
-    }
-    while (box.children.length >= 3) box.firstChild.remove();
-    box.appendChild(t);
-    setTimeout(() => t.remove(), o.ms || (o.action ? 6000 : 3000));
+    const a = o.action;
+    MBUI.toast(String(msg), { ms: o.ms, action: a ? { label: a.label, fn: a.run } : undefined });
   }
 }
 

@@ -33,22 +33,51 @@
 .cu-banner{max-width:none}
 .page-bar .actions{flex-wrap:nowrap}
 /* v1.2 · standard top bar (mb-suite-topbar.css loads after this): app-only bits */
-.page-bar .actions .searchbox input{height:var(--tb-h)}
 .page-bar .actions .menu-wrap{display:flex}
-@media (min-width:768px){.page-bar .actions .tb.nb-phone-only{display:none}}
 .side-tags{max-height:40vh;overflow-y:auto}
 .side-tags button{min-height:34px;font-size:13.5px}
 .side-tags .hash{width:18px;text-align:center;font-weight:650;opacity:.7}
 @media (max-width:1023px){
   .side-label,.side-tags{display:none}
   /* the rail has no room for tags, so tablets get the same filter chips as phones */
-  .phone-tools{display:block;margin:0 0 12px}
-  .phone-tools .searchbox{display:none}
   .chiprow{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
   .chiprow:empty{display:none}
   .chip-f{flex:none;display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 12px;border:1px solid var(--border-strong);border-radius:var(--r-sm);background:var(--surface);font-size:13px;font-weight:550;cursor:pointer}
   .chip-f[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 }
-@media (max-width:767px){.phone-tools .searchbox{display:flex}.chiprow{margin-top:8px}}
+@media (max-width:767px){.chiprow{margin-top:8px}}
 /* v1.5 · nav icons use the suite's 1.8 outline stroke (SUITE nav icons) */
 .side-nav .uic,.bnav .uic{stroke-width:1.8}
+/* v1.6 · phone bottom bar: Notes · Checklists · [Add] · Archive · More. The center Add replaces the top bar's
+   "New note" on phones; Settings, Pinned, Trash, Help and What's new live in the More sheet (MBUI.sheet, v1.7). */
+@media (max-width:767px){.page-bar .actions .tb-primary[data-action="new"]{display:none}}
+/* v1.6 · long titles, tags and unbroken words wrap instead of widening the phone layout */
+.card-note .cl label>span{min-width:0;overflow-wrap:anywhere}
+.card-note .tagchip{min-width:0;max-width:100%;overflow-wrap:anywhere;text-align:left}
+.chip-f{max-width:min(260px,72vw);overflow-wrap:anywhere;text-align:left}
+.side-tags button>span:not(.hash){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.view-head h2,.view-head .view-sub,.page-bar .page-title{overflow-wrap:anywhere}
+.page-bar .page-title{min-width:0}
+/* v1.7 · the list filter sits above the notes at every width; filter chips only where the sidebar has no tag list */
+@media (min-width:1024px){.chiprow{display:none}}
+.view-head .set-intro{flex-basis:100%}
+.inst-line{display:block;font-size:14px;color:var(--ink)}
+.mbw-choices.two{grid-template-columns:1fr 1fr}
+@media (max-width:420px){.mbw-choices.two{grid-template-columns:1fr}}
+#sampleNote:empty{display:none}
+/* v1.7 · Help page: intro · Getting started · FAQ groups (<details>) · Install the app · Your data & privacy */
+.help{display:flex;flex-direction:column;gap:22px;max-width:780px;padding-bottom:8px}
+.help-sec{display:flex;flex-direction:column;gap:8px}
+.help-steps{margin:0;padding:14px 16px 14px 36px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--ink-2);font-size:14px;line-height:1.55}
+.help-steps li+li{margin-top:6px}
+.help-card{border:1px solid var(--border);border-radius:var(--r);background:var(--surface)}
+.help-card details+details{border-top:1px solid var(--border)}
+.help-card summary{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 16px;font-weight:600;font-size:14px;cursor:pointer;list-style:none}
+.help-card summary::-webkit-details-marker{display:none}
+.help-card summary::after{content:"";flex:none;margin-left:auto;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translate(-2px,-2px);transition:transform var(--ease)}
+.help-card details[open] summary::after{transform:rotate(225deg) translate(-2px,-2px)}
+.help-card summary:hover{background:var(--hover-band)}
+.help-card summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.help-card details p{margin:0;padding:0 16px 14px;color:var(--ink-2);font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+.help-more{margin:2px 2px 0;font-size:13.5px;color:var(--ink-2)}
+#helpView .mb-foot{margin-top:28px}

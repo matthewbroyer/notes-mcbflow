@@ -8,7 +8,6 @@
 <meta name="description" content="Free notes app that runs in your browser. Write notes and checklists, pin, tag and link them, and import from Google Keep. No account needed; your notes stay on your device.">
 <link rel="canonical" href="https://notes.mcbflow.com/">
 <meta name="theme-color" content="#EAB308">
-<meta name="color-scheme" content="light dark">
 <meta name="application-name" content="Notes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -72,7 +71,8 @@
   <symbol id="i-restore" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5"/><path d="M4 4v4.5h4.5"/></symbol>
   <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7.5 18.5h9.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.3a4.6 4.6 0 0 0 1.3 9.2z"/></symbol>
   <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/></symbol>
-  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17.3v.2"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.3a2.8 2.8 0 1 1 3.9 2.6c-.7.3-1.2 1-1.2 1.8v.6"/><path d="M12 17.3h.01"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12M12 8c-1.5-3-5-3.5-5.5-1.5S9 8 12 8c3 0 6-.5 5.5-1.5S13.5 5 12 8"/></symbol>
   <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5c3 3.6 6 7 6 10.5a6 6 0 0 1-12 0c0-3.5 3-6.9 6-10.5z"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><path d="M19.00 10.32 L21.51 10.72 L21.51 13.28 L19.00 13.68 L18.14 15.76 L19.63 17.82 L17.82 19.63 L15.76 18.14 L13.68 19.00 L13.28 21.51 L10.72 21.51 L10.32 19.00 L8.24 18.14 L6.18 19.63 L4.37 17.82 L5.86 15.76 L5.00 13.68 L2.49 13.28 L2.49 10.72 L5.00 10.32 L5.86 8.24 L4.37 6.18 L6.18 4.37 L8.24 5.86 L10.32 5.00 L10.72 2.49 L13.28 2.49 L13.68 5.00 L15.76 5.86 L17.82 4.37 L19.63 6.18 L18.14 8.24Z"/><circle cx="12" cy="12" r="3"/></symbol>
   <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></symbol>
@@ -90,7 +90,7 @@
 </svg>
 
 <aside class="mb-side" aria-label="App">
-  <a class="brand" href="./" data-action="home" aria-label="Notes (notes.mcbflow.com): go to All notes"><span class="logo"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="gn1" gradientUnits="userSpaceOnUse" x1="10" y1="0" x2="54" y2="64"><stop offset="0" stop-color="#edbe2b"/><stop offset=".55" stop-color="#EAB308"/><stop offset="1" stop-color="#bb8f06"/></linearGradient><clipPath id="cn1"><rect width="64" height="64" rx="18"/></clipPath></defs><g clip-path="url(#cn1)"><rect width="64" height="64" fill="url(#gn1)"/><path d="M24 26.5h16M24 33.5h16M24 40.5h9" stroke="#fff" stroke-opacity=".55" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M17.5 14.5h21.5l7.5 7.5v27.5h-29z" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M39 14.5v7.5h7.5" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg></span><span class="bt"><b>Notes<i class="tld"><span class="sep" aria-hidden="true">∙</span>mcbflow.com</i></b><span>Official Web App · v1.5</span></span></a>
+  <a class="brand" href="./" data-action="home" aria-label="Notes (notes.mcbflow.com): go to All notes"><span class="logo"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="gn1" gradientUnits="userSpaceOnUse" x1="10" y1="0" x2="54" y2="64"><stop offset="0" stop-color="#edbe2b"/><stop offset=".55" stop-color="#EAB308"/><stop offset="1" stop-color="#bb8f06"/></linearGradient><clipPath id="cn1"><rect width="64" height="64" rx="18"/></clipPath></defs><g clip-path="url(#cn1)"><rect width="64" height="64" fill="url(#gn1)"/><path d="M24 26.5h16M24 33.5h16M24 40.5h9" stroke="#fff" stroke-opacity=".55" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M17.5 14.5h21.5l7.5 7.5v27.5h-29z" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M39 14.5v7.5h7.5" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg></span><span class="bt"><b>Notes<i class="tld"><span class="sep" aria-hidden="true">∙</span>mcbflow.com</i></b><span>Official Web App · v1.7</span></span></a>
   <nav class="side-nav" id="sideNav" aria-label="Sections">
     <button type="button" data-view="all" aria-current="page"><svg class="uic"><use href="#i-notes"/></svg><span>All notes</span><b class="count" data-count="all"></b></button>
     <button type="button" data-view="pinned"><svg class="uic"><use href="#i-pin"/></svg><span>Pinned</span><b class="count" data-count="pinned"></b></button>
@@ -100,21 +100,18 @@
   </nav>
   <p class="side-label" id="tagLabel" hidden>Tags</p>
   <nav class="side-nav side-tags" id="tagNav" aria-labelledby="tagLabel"></nav>
-  <nav class="side-nav side-end" aria-label="Settings">
+  <nav class="side-nav side-end" aria-label="Settings and help">
     <button type="button" data-view="settings"><svg class="uic"><use href="#i-gear"/></svg><span>Settings</span></button>
+    <button type="button" data-view="help"><svg class="uic"><use href="#i-help"/></svg><span>Help</span></button>
   </nav>
 </aside>
 
 <div class="mb-main">
   <header class="page-bar">
-    <a class="brand phone-brand" href="./" data-action="home" aria-label="Notes (notes.mcbflow.com): go to All notes"><span class="logo"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="gn2" gradientUnits="userSpaceOnUse" x1="10" y1="0" x2="54" y2="64"><stop offset="0" stop-color="#edbe2b"/><stop offset=".55" stop-color="#EAB308"/><stop offset="1" stop-color="#bb8f06"/></linearGradient><clipPath id="cn2"><rect width="64" height="64" rx="18"/></clipPath></defs><g clip-path="url(#cn2)"><rect width="64" height="64" fill="url(#gn2)"/><path d="M24 26.5h16M24 33.5h16M24 40.5h9" stroke="#fff" stroke-opacity=".55" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M17.5 14.5h21.5l7.5 7.5v27.5h-29z" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M39 14.5v7.5h7.5" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg></span><span class="bt"><b>Notes<i class="tld"><span class="sep" aria-hidden="true">∙</span>mcbflow.com</i></b><span>Official Web App · v1.5</span></span></a>
+    <a class="brand phone-brand" href="./" data-action="home" aria-label="Notes (notes.mcbflow.com): go to All notes"><span class="logo"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="gn2" gradientUnits="userSpaceOnUse" x1="10" y1="0" x2="54" y2="64"><stop offset="0" stop-color="#edbe2b"/><stop offset=".55" stop-color="#EAB308"/><stop offset="1" stop-color="#bb8f06"/></linearGradient><clipPath id="cn2"><rect width="64" height="64" rx="18"/></clipPath></defs><g clip-path="url(#cn2)"><rect width="64" height="64" fill="url(#gn2)"/><path d="M24 26.5h16M24 33.5h16M24 40.5h9" stroke="#fff" stroke-opacity=".55" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M17.5 14.5h21.5l7.5 7.5v27.5h-29z" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M39 14.5v7.5h7.5" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg></span><span class="bt"><b>Notes<i class="tld"><span class="sep" aria-hidden="true">∙</span>mcbflow.com</i></b><span>Official Web App · v1.7</span></span></a>
     <h1 class="page-title" id="pageTitle">All notes</h1>
     <div class="actions">
-      <button type="button" class="tb tb-search tb-opt nb-phone-only" id="searchTb" data-notes-only aria-label="Search notes" title="Search notes"><svg class="uic" aria-hidden="true"><use href="#i-search"/></svg></button>
-      <div class="searchbox tb tb-search hide-phone" data-notes-only>
-        <svg class="uic" aria-hidden="true"><use href="#i-search"/></svg>
-        <input id="search" type="search" placeholder="Search…" aria-label="Search notes (press /)" aria-keyshortcuts="/" autocomplete="off"><kbd>/</kbd>
-      </div>
+      <button type="button" class="tb tb-search" id="searchBtn" aria-label="Search notes" aria-keyshortcuts="/ Control+K Meta+K" title="Search notes (/ or Ctrl+K)"><svg class="uic" aria-hidden="true"><use href="#i-search"/></svg><span class="tb-lbl">Search…</span><kbd>/</kbd></button>
       <div class="menu-wrap">
         <button type="button" class="tb" id="dataBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="dataMenu" aria-label="Data: back up, sync, export or import" title="Back up, sync, export or import"><svg class="uic" aria-hidden="true"><use href="#i-data"/></svg><span class="tb-lbl">Data</span><svg class="uic tb-chev" aria-hidden="true"><use href="#i-down"/></svg></button>
         <div class="mb-dm" id="dataMenu" role="menu" aria-label="Data" hidden></div>
@@ -130,8 +127,9 @@
     <section id="notesView" aria-labelledby="viewHeading">
       <section class="cu-banner" id="homeBanner">
         <svg class="cu-art" viewBox="0 0 640 136" preserveAspectRatio="xMaxYMax slice" aria-hidden="true" focusable="false"><circle class="b" cx="560" cy="46" r="26"/><path class="s" d="M210 150 C315 80 525 80 630 150Z"/><path class="m" d="M410 150 C485 66 635 66 710 150Z"/><path class="d" d="M530 150 C585 90 695 90 750 150Z"/><path class="n" transform="translate(470 98) rotate(-64) scale(0.5)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><path class="d" transform="translate(480 98) rotate(-116) scale(0.4)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><circle class="r" cx="360" cy="44" r="6"/></svg>
-        <div class="cu-txt"><p class="mb-greet" id="greet"></p><h2 class="cu-t" id="bannerTitle">All notes</h2><p class="cu-s" id="bannerSub">Your notes stay in this browser</p></div>
+        <div class="cu-txt"><p class="mb-greet" id="greet"></p><h2 class="cu-t" id="bannerTitle">Your notes</h2><p class="cu-s" id="bannerSub"></p></div>
       </section>
+      <div id="sampleNote"></div>
       <div class="view-head" id="viewHead" hidden>
         <h2 id="viewHeading">All notes</h2>
         <p class="view-sub" id="viewSub"></p>
@@ -141,7 +139,7 @@
       <div class="phone-tools">
         <div class="searchbox">
           <svg class="uic" aria-hidden="true"><use href="#i-search"/></svg>
-          <input id="searchPhone" type="search" placeholder="Search notes" aria-label="Search notes" autocomplete="off">
+          <input id="searchPhone" type="search" placeholder="Filter this list" aria-label="Filter the notes in this view" autocomplete="off">
         </div>
         <div class="chiprow" id="phoneChips" aria-label="Filters"></div>
       </div>
@@ -182,9 +180,9 @@
       </div>
 
       <div id="notes" aria-live="polite"></div>
-      <div id="empty" class="empty" hidden></div>
+      <div id="empty" hidden></div>
       <footer class="mb-foot">
-        <p class="mb-foot-main"><b>Notes</b> v1.5 · Free · No account needed</p>
+        <p class="mb-foot-main"><b>Notes</b> v1.7 · Free · No account needed</p>
         <nav class="mb-foot-links" aria-label="About Notes"><button type="button" data-action="whats-new">What’s new</button><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="https://mcbflow.com/">More free apps</a></nav>
         <p class="mb-foot-copy">© 2026 Matthew Broyer</p>
       </footer>
@@ -192,10 +190,10 @@
 
     <!-- SETTINGS (MB Suite v3.3 order: Appearance → Account & sync → Notes → Backup & data → Install → About) -->
     <section id="settingsView" hidden aria-labelledby="settingsHeading">
-      <div class="view-head"><h2 id="settingsHeading" class="phone-only">Settings</h2></div>
+      <div class="view-head"><h2 id="settingsHeading" class="phone-only">Settings</h2><p class="view-sub set-intro">Changes save as you make them.</p></div>
       <div class="mb-set">
         <section class="mb-set-sec" aria-labelledby="setA"><h2 class="mb-set-h" id="setA">Appearance</h2>
-          <div class="mb-set-card"><div class="mb-set-row"><div class="mb-set-l"><b>Theme</b><small>Light or dark. Follows your device until you pick one here or in the top bar.</small></div>
+          <div class="mb-set-card"><div class="mb-set-row"><div class="mb-set-l"><b>Theme</b><small>Light or dark. Saved on this device.</small></div>
             <div class="mb-set-c"><div class="mb-seg" role="group" aria-label="Theme"><button type="button" data-theme-set="light" aria-pressed="true"><svg class="uic" aria-hidden="true"><use href="#i-sun"/></svg>Light</button><button type="button" data-theme-set="dark" aria-pressed="false"><svg class="uic" aria-hidden="true"><use href="#i-moon"/></svg>Dark</button></div></div></div></div>
         </section>
 
@@ -203,24 +201,11 @@
           <div class="mb-set-card pad" id="syncCard"><p class="muted" style="margin:0">Sync isn’t available in this browser.</p></div>
         </section>
 
-        <section class="mb-set-sec" aria-labelledby="setN"><h2 class="mb-set-h" id="setN">Your notes</h2>
+        <section class="mb-set-sec" aria-labelledby="setN"><h2 class="mb-set-h" id="setN">Notes settings</h2>
           <div class="mb-set-card">
             <div class="mb-set-row"><div class="mb-set-l"><b>Your notes</b><small id="statsLine"></small></div>
               <div class="mb-set-c"><button type="button" class="btn sm mb-share-btn" data-action="share-stats"><svg class="uic" aria-hidden="true"><use href="#i-share"/></svg>Share</button></div></div>
             <div class="mb-set-row"><div class="mb-set-l"><b>Storage used</b><small id="storageLine"></small></div></div>
-          </div>
-        </section>
-
-        <section class="mb-set-sec" aria-labelledby="setT"><h2 class="mb-set-h" id="setT">Tips</h2>
-          <div class="mb-set-card pad">
-            <dl class="tips">
-              <dt>Tags</dt><dd>Type <code>#idea</code> anywhere in a note. Tags appear in the sidebar so you can filter by them.</dd>
-              <dt>Links between notes</dt><dd>Type <code>[[Note title]]</code> to link to another note. The linked note lists it under "Linked from".</dd>
-              <dt>Web links</dt><dd>Paste any <code>https://</code> address and it becomes clickable.</dd>
-              <dt>Attachments</dt><dd>Attach files with the paperclip or paste a screenshot. Click a picture or file to open it right here in the app.</dd>
-              <dt>Keyboard</dt><dd><kbd>Esc</kbd> or <kbd>Ctrl</kbd>+<kbd>Enter</kbd> saves and closes. <kbd>Ctrl</kbd>+<kbd>B</kbd> / <kbd>I</kbd> / <kbd>U</kbd> format text. <kbd>Ctrl</kbd>+<kbd>S</kbd> saves a backup. Start a line with <code>• </code> or <code>1. </code> and Enter continues the list.</dd>
-              <dt>Can I install it like an app?</dt><dd>In Chrome or Edge, use Install below (or the install icon in the address bar). On iPhone, tap Share, then Add to Home Screen.</dd>
-            </dl>
           </div>
         </section>
 
@@ -243,8 +228,7 @@
         </section>
 
         <section class="mb-set-sec" aria-labelledby="setI"><h2 class="mb-set-h" id="setI">Install</h2>
-          <div data-mb-install data-app-name="Notes" data-note="Opens in its own window with its own icon. Works offline after the first visit." hidden></div>
-          <div class="mb-set-card" id="installFallback"><div class="mb-set-row"><div class="mb-set-l"><b>Install Notes</b><small>This browser isn’t offering an install button right now. In Chrome or Edge, use the install icon in the address bar. On iPhone or iPad, tap Share, then Add to Home Screen.</small></div></div></div>
+          <div class="mb-set-card" id="installCard"><div class="mb-set-row"><div class="mb-set-l"><span class="inst-line">Add Notes to your home screen or dock. It opens in its own window and works offline.</span><small id="installHow"></small></div><div class="mb-set-c"><button type="button" class="btn primary" id="installBtn" hidden>Install</button></div></div></div>
         </section>
 
         <section class="mb-set-sec" aria-labelledby="setAb"><h2 class="mb-set-h" id="setAb">About</h2>
@@ -252,13 +236,84 @@
             <svg class="uic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.01"/></svg>
             <div>
               <b>notes.mcbflow.com™</b>
-              <p>Version 1.5 · Oct 16, 2026</p>
-              <p class="mb-about-links"><button type="button" data-action="whats-new">What’s new</button><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="https://mcbflow.com/">More free apps at mcbflow.com</a></p>
+              <p>Version 1.7 · Oct 17, 2026</p>
+              <p class="mb-about-links"><button type="button" data-action="whats-new">What’s new</button><button type="button" data-view="help">Help</button><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="https://mcbflow.com/">More free apps at mcbflow.com</a></p>
               <p class="mb-about-copy">© 2026 Matthew Broyer. All rights reserved.</p>
             </div>
           </div>
         </section>
       </div>
+    </section>
+
+    <!-- HELP (suite standard: intro · Getting started · FAQ by topic · Install the app · Your data & privacy) -->
+    <section id="helpView" hidden aria-labelledby="helpHeading">
+      <div class="view-head"><h2 id="helpHeading" class="phone-only">Help</h2><p class="view-sub">Short answers about writing, finding and keeping your notes.</p></div>
+      <div class="help">
+        <section class="help-sec" aria-labelledby="hStart"><h2 class="mb-set-h" id="hStart">Getting started</h2>
+          <ol class="help-steps">
+            <li>Click <b>Write a note…</b> at the top of All notes (or <b>New note</b>, or the <b>+</b> in the bar on phones) and start typing.</li>
+            <li>Add a title, a color, a checklist or a file from the box’s toolbar. The note saves when you click away, press <kbd>Esc</kbd> or <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.</li>
+            <li>Type <code>#tags</code> to group notes, and <code>[[Note title]]</code> to link one note to another.</li>
+            <li>Now and then, choose <b>Data → Save backup now</b> (<kbd>Ctrl</kbd>+<kbd>S</kbd>) to keep a copy outside the browser.</li>
+          </ol>
+        </section>
+
+        <section class="help-sec" aria-labelledby="hWrite"><h2 class="mb-set-h" id="hWrite">Writing notes</h2>
+          <div class="help-card">
+            <details><summary>How do I make a checklist?</summary><p>Tap the checklist button in the note box or in an open note, or open <b>Checklists</b> and choose <b>New checklist</b>. <kbd>Enter</kbd> adds the next item, <kbd>Backspace</kbd> on an empty item removes it, and the arrows move an item up or down. You can tick items right on the card; the card shows how many are done. When every item is done, a <b>Share</b> button makes a picture of the finished list.</p></details>
+            <details><summary>Can I format text?</summary><p>Yes: bold, italic, underline, strikethrough, bullet and numbered lists from the toolbar, or <kbd>Ctrl</kbd>+<kbd>B</kbd> / <kbd>I</kbd> / <kbd>U</kbd>. Start a line with <code>• </code> or <code>1. </code> and <kbd>Enter</kbd> continues the list; <kbd>Enter</kbd> on an empty list line ends it.</p></details>
+            <details><summary>Can I attach pictures or files?</summary><p>Use the paperclip, or paste a screenshot into a note. Each file can be up to 4 MB. Pictures, PDFs and text files open right in the app; other files can be downloaded from there. Attached files stay on the device you added them on.</p></details>
+            <details><summary>How do I pin a note or change its color?</summary><p>Use the pin and the color dots on a note card or in an open note. Pinned notes sit at the top of All notes and have their own <b>Pinned</b> list.</p></details>
+            <details><summary>What if I close the page while writing?</summary><p>Notes you have open save as you type. A note you were still writing in the box at the top comes back the next time you open Notes.</p></details>
+          </div>
+        </section>
+
+        <section class="help-sec" aria-labelledby="hTags"><h2 class="mb-set-h" id="hTags">Tags and links</h2>
+          <div class="help-card">
+            <details><summary>How do tags work?</summary><p>Type <code>#idea</code> anywhere in a note’s title or text (letters, numbers, - and _). Tags are listed in the sidebar on computers and as filter buttons above your notes on phones and tablets. Click a tag on a card to see every note with it.</p></details>
+            <details><summary>How do I link two notes?</summary><p>Type the other note’s exact title in double brackets, like <code>[[Project ideas]]</code>. It becomes a link that opens that note, and the linked note lists yours under <b>Linked from</b>. A link to a title that doesn’t exist yet shows with a dashed underline.</p></details>
+            <details><summary>Do web addresses become links?</summary><p>Yes. Paste any address that starts with <code>https://</code> and it becomes clickable. It opens in a new tab.</p></details>
+          </div>
+        </section>
+
+        <section class="help-sec" aria-labelledby="hFind"><h2 class="mb-set-h" id="hFind">Finding and tidying up</h2>
+          <div class="help-card">
+            <details><summary>How do I find a note?</summary><p>Use <b>Search</b> in the top bar, or press <kbd>/</kbd> or <kbd>Ctrl</kbd>+<kbd>K</kbd>. It looks through titles, text, checklist items and tags of every note, Archive and Trash included, and opens the note you pick. The <b>Filter this list</b> box above your notes narrows the list you’re looking at.</p></details>
+            <details><summary>What’s the difference between Archive and Trash?</summary><p><b>Archive</b> is for notes you’re done with but want to keep: they leave All notes and stay searchable. <b>Trash</b> holds deleted notes until you delete them for good or choose <b>Empty Trash</b>.</p></details>
+            <details><summary>Can I get a deleted note back?</summary><p>From Trash, choose <b>Restore</b>. After <b>Delete forever</b> or <b>Empty Trash</b> you have a few seconds to press <b>Undo</b>; after that the note is gone unless it’s in a backup.</p></details>
+            <details><summary>Keyboard shortcuts</summary><p><kbd>/</kbd> or <kbd>Ctrl</kbd>+<kbd>K</kbd> search · <kbd>Ctrl</kbd>+<kbd>S</kbd> save a backup · <kbd>Esc</kbd> or <kbd>Ctrl</kbd>+<kbd>Enter</kbd> save and close a note · <kbd>Ctrl</kbd>+<kbd>B</kbd> / <kbd>I</kbd> / <kbd>U</kbd> format text · <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Y</kbd> undo and redo. On a Mac, use <kbd>Cmd</kbd> instead of <kbd>Ctrl</kbd>.</p></details>
+          </div>
+        </section>
+
+        <section class="help-sec" aria-labelledby="hData"><h2 class="mb-set-h" id="hData">Backups, sync and Google Keep</h2>
+          <div class="help-card">
+            <details><summary>How do I back up my notes?</summary><p><b>Data → Save backup now</b> (<kbd>Ctrl</kbd>+<kbd>S</kbd>). In Chrome and Edge it asks once where to keep the file, then updates that file in one click; other browsers download a dated backup. <b>Export All</b> also gives you a spreadsheet (CSV) or a ZIP with your backup, a spreadsheet and your attached files.</p></details>
+            <details><summary>How do I move my notes to another device?</summary><p>Sign in with a free mcbflow.com account on both devices (<b>Data → Sync across devices</b>) and your notes, checklists and tags stay the same on both. Attached files stay on the device you added them on. Or export a backup (JSON or ZIP) and use <b>Data → Import Backup</b> on the other device; you choose whether to add to your notes or replace them.</p></details>
+            <details><summary>Can I bring my notes over from Google Keep?</summary><p>Yes. At takeout.google.com export Keep only, then choose the .zip in <b>Settings → Backup &amp; data → Import from Google Keep</b>. Titles, text, checklists, colors, pins, archive, labels (as #tags) and images come across, and notes you imported before are skipped. The file is read on your device.</p></details>
+            <details><summary>What is the sample data?</summary><p>On your first visit you can start with three sample notes that show tags, links and a checklist. <b>Remove sample data</b> at the top of All notes deletes the ones you haven’t changed.</p></details>
+          </div>
+        </section>
+
+        <section class="help-sec" aria-labelledby="hInstall"><h2 class="mb-set-h" id="hInstall">Install the app</h2>
+          <div class="help-card">
+            <details><summary>Can I install Notes like an app?</summary><p>Yes. Use <b>Settings → Install</b> when your browser offers it, or the install icon in Chrome or Edge’s address bar. On iPhone or iPad, tap Share, then Add to Home Screen. It opens in its own window with its own icon.</p></details>
+            <details><summary>Does it work offline?</summary><p>Yes, after your first visit. Writing, searching and backups all work without a connection; sync catches up when you’re back online.</p></details>
+          </div>
+        </section>
+
+        <section class="help-sec" aria-labelledby="hPriv"><h2 class="mb-set-h" id="hPriv">Your data &amp; privacy</h2>
+          <div class="help-card">
+            <details><summary>Where are my notes stored?</summary><p>In this browser on this device. No account is needed, and nothing is sent anywhere unless you sign in to sync. There are no ads or tracking.</p></details>
+            <details><summary>What happens if I clear my browser data?</summary><p>Your notes in this browser are deleted with it, so keep a backup (or sign in to sync). <b>Data → Clear all data</b> deletes everything on purpose and offers to save a backup first.</p></details>
+          </div>
+          <p class="help-more">More detail on the <a href="privacy.html">Privacy</a> page.</p>
+        </section>
+      </div>
+      <footer class="mb-foot">
+        <p class="mb-foot-main"><b>Notes</b> v1.7 · Free · No account needed</p>
+        <nav class="mb-foot-links" aria-label="About Notes"><button type="button" data-action="whats-new">What’s new</button><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="https://mcbflow.com/">More free apps</a></nav>
+        <p class="mb-foot-copy">© 2026 Matthew Broyer</p>
+      </footer>
     </section>
   </main>
 </div>
@@ -266,9 +321,9 @@
 <nav class="bnav" id="bnav" aria-label="Sections">
   <button type="button" data-view="all" aria-current="page"><svg class="uic"><use href="#i-notes"/></svg><span>Notes</span></button>
   <button type="button" data-view="checklist"><svg class="uic"><use href="#i-check"/></svg><span>Checklists</span></button>
+  <button type="button" class="bn-add" data-action="new" aria-label="Add a new note"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg></button>
   <button type="button" data-view="archive"><svg class="uic"><use href="#i-archive"/></svg><span>Archive</span></button>
-  <button type="button" data-view="trash"><svg class="uic"><use href="#i-trash"/></svg><span>Trash</span></button>
-  <button type="button" data-view="settings"><svg class="uic"><use href="#i-gear"/></svg><span>Settings</span></button>
+  <button type="button" id="bnMore" aria-haspopup="dialog" aria-expanded="false"><svg class="uic" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" stroke="none" aria-hidden="true" focusable="false"><circle cx="5.5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18.5" cy="12" r="1.7"/></svg><span>More</span></button>
 </nav>
 
 <!-- note editor -->
@@ -326,7 +381,7 @@
   </form>
 </dialog>
 
-<!-- WELCOME (first run, MB Suite v3.3 .mbw): 1 Welcome · 2 Pick a look · 3 First note + "Moving from another device?" -->
+<!-- WELCOME (first run, MB Suite v3.3 .mbw): 1 Welcome · 2 Pick a look · 3 Start empty | Start with sample data, first note + "Moving from another device?" -->
 <div class="mbw" id="welcome" role="dialog" aria-modal="true" aria-labelledby="mbwTitle" hidden>
   <div class="mbw-card">
     <header class="mbw-head">
@@ -352,8 +407,12 @@
       </div>
     </div>
     <div class="mbw-body" data-step="2" hidden>
-      <h2>Write your first note</h2><p class="mbw-lead">Optional. Three short sample notes are already in your list to show how tags, links and checklists work. Delete them whenever you like.</p>
-      <label class="mbw-field"><span>First note</span><input type="text" id="mbwNote" maxlength="500" autocomplete="off" placeholder="e.g. Ideas for the weekend #plans"></label>
+      <h2>How do you want to start?</h2><p class="mbw-lead">Start with an empty list, or with three sample notes that show tags, links and a checklist. You can remove the samples in one click.</p>
+      <div class="mbw-choices two" role="group" aria-label="How to start">
+        <button type="button" class="mbw-choice" data-start="empty" aria-pressed="true"><span><b>Start empty</b><small>A blank list, ready for your notes.</small></span></button>
+        <button type="button" class="mbw-choice" data-start="sample" aria-pressed="false"><span><b>Start with sample data</b><small>Three sample notes to try things out.</small></span></button>
+      </div>
+      <label class="mbw-field"><span>First note (optional)</span><input type="text" id="mbwNote" maxlength="500" autocomplete="off" placeholder="e.g. Ideas for the weekend #plans"></label>
       <div class="mbw-alt"><span>Moving from another device or app?</span>
         <button class="mbw-btn sm" type="button" id="mbwSync"><svg class="uic" aria-hidden="true"><use href="#i-sync"/></svg>Sign in to sync</button>
         <button class="mbw-btn sm" type="button" id="mbwImport"><svg class="uic" aria-hidden="true"><use href="#i-upload"/></svg>Import a backup</button>
@@ -363,36 +422,10 @@
   </div>
 </div>
 
-<!-- What's new -->
-<dialog id="newsDlg" class="ask-dlg news-dlg" aria-labelledby="newsTitle">
-  <div class="news-in">
-    <h3 id="newsTitle">What’s new in Notes</h3>
-    <h4>1.5 · Oct 16, 2026</h4>
-    <ul>
-      <li>A new Settings page, laid out the same way in every mcbflow.com app.</li>
-      <li>An account button in the top bar, and “Keep me signed in on this device” for shared computers.</li>
-      <li>A short welcome screen on your first visit.</li>
-      <li>A clearer Data menu: Save backup now (Ctrl+S), and Export All as JSON, CSV or ZIP. The ZIP holds your backup, a spreadsheet and your attachments.</li>
-      <li>Pictures and attached files open right in the app instead of downloading.</li>
-      <li>Pick a profile picture and screen name for your mcbflow.com account (account button → Edit profile); every app shows the same one.</li>
-      <li>A greeting above All notes (“Good morning”, with your name when you’re signed in).</li>
-      <li>A proper gear icon for Settings, and a new name style: Notes ∙ mcbflow.com.</li>
-    </ul>
-    <h4>1.4 · Oct 15, 2026</h4>
-    <ul>
-      <li>Optional free mcbflow.com account to sync notes across your devices.</li>
-      <li>Attachments live in the browser’s database, so they no longer eat into the note space.</li>
-    </ul>
-    <div class="ask-btns"><button type="button" class="btn primary" data-action="close-news">Close</button></div>
-  </div>
-</dialog>
-
-<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
 <input type="file" id="importFile" class="sr" accept=".json,.zip,application/json,application/zip" tabindex="-1" aria-hidden="true">
 <input type="file" id="keepFile" class="sr" accept=".zip,.json,application/zip,application/json" multiple tabindex="-1" aria-hidden="true">
 
 <template id="shareArt"><svg class="cu-art" viewBox="0 0 640 136" preserveAspectRatio="xMaxYMax slice" aria-hidden="true" focusable="false"><circle class="b" cx="560" cy="46" r="26"/><path class="s" d="M210 150 C315 80 525 80 630 150Z"/><path class="m" d="M410 150 C485 66 635 66 710 150Z"/><path class="d" d="M530 150 C585 90 695 90 750 150Z"/><path class="n" transform="translate(470 98) rotate(-64) scale(0.5)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><path class="d" transform="translate(480 98) rotate(-116) scale(0.4)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><circle class="r" cx="360" cy="44" r="6"/></svg></template>
-<template id="emptyArt"><svg class="cu-art inline" viewBox="0 0 160 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path class="s" transform="translate(80 98)" d="M-48 2.2 C-48 -15.8 26.4 -16.5 48 -1.5 C49 14.2 -26.4 16.5 -48 2.2Z"/><path class="sd" d="M80 92 C75.6 71.8 83.3 54 80 41.4"/><path class="d" transform="translate(80 41.4) rotate(-38) scale(0.5)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><path class="m" transform="translate(80 52.5) rotate(-150) scale(0.4)" d="M0 0 C 20 -34 66 -40 96 -6 C 70 28 22 34 0 0Z"/><circle class="b" cx="122" cy="40" r="7"/><path class="m" transform="translate(40 104)" d="M-13 0.9 C-13 -6.3 7.2 -6.6 13 -0.6 C13.3 5.7 -7.2 6.6 -13 0.9Z"/></svg></template>
 
 <script src="mb-title.js"></script>
 <script src="mb-install.js"></script>
@@ -400,6 +433,7 @@
 <script src="keep-import.js"></script>
 <script src="mb-sync.js"></script>
 <script src="mb-files.js"></script>
+<script src="mb-ui.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

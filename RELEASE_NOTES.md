@@ -2,6 +2,24 @@
 
 Newest first. One entry per release, in plain words a user would understand.
 
+## 1.7 · 2026-10-17
+- New Help page (sidebar, and More on phones): getting started in four steps, answers grouped by topic (writing, tags and links, finding and tidying up, backups and sync), installing the app, and your data and privacy. The Tips that were in Settings moved there.
+- Search in the top bar (or / or Ctrl+K) now looks through every note, Archive and Trash included, plus your tags, and opens the note you pick. The box above your notes is now called "Filter this list" and still narrows the list you're looking at; on computers it sits above the notes instead of in the top bar.
+- Notes always opens in light mode until you pick dark (welcome screen, top bar or Settings). It no longer follows your device's dark mode.
+- First visit: the welcome screen asks "Start empty" or "Start with sample data" (empty is the default). The three sample notes are no longer added on their own. When they're there, All notes shows "You're looking at sample data" with Remove sample data, which removes the samples you haven't changed (with Undo). Your existing notes are untouched.
+- Delete forever (in Trash) and Empty Trash happen right away and show Undo, instead of asking first.
+- The phone More menu now lists Settings, Pinned, Trash, Help and What's new, and looks the same as in the other mcbflow.com apps. What's new, messages and empty pages also use the shared look.
+- The welcome banner now reads "Your notes" with today's date and how many notes you have.
+- Settings starts with "Changes save as you make them." The "Your notes" section is now "Notes settings", and the Install section reads the same in every app.
+- The spreadsheet export is now named notes-notes-YYYY-MM-DD.csv, and share images are dated (notes-milestone-YYYY-MM-DD.png). Backups keep their names. Import still takes files with any name.
+
+## 1.6 · 2026-10-17
+- New bottom bar on phones: Notes · Checklists · + (new note) · Archive · More. The + does the same as the "New note" button, which now only shows on bigger screens. Trash, Settings and What's new are under More.
+- Clear all data now asks you to type DELETE, the same in every mcbflow.com app, and offers to save a backup first. When you're signed in it says the synced copy on your account is deleted too.
+- Account pop-up spacing fixed.
+- The welcome banner art is no longer cut off on phones.
+- Very long note titles, tags or words no longer make the page scroll sideways on phones.
+
 ## 1.5 · 2026-10-16
 - New Settings page, laid out the same way in every mcbflow.com app: Appearance, Account & sync, Your notes, Tips, Backup & data, Install, About.
 - Account button in the top bar: "Sign in", or your initial with a dot that shows whether sync is up to date. New "Keep me signed in on this device" switch (turn it off on a shared computer).
